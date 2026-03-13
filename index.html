@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>乐谱编排器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
+        
+        /* CSS Variables for theming */
+        :root {
+            --bg-primary: linear-gradient(135deg, #0a0a0f 0%, #0f0f14 50%, #0a0a0f 100%);
+            --bg-panel: linear-gradient(180deg, #13131a 0%, #111116 100%);
+            --bg-card: linear-gradient(145deg, #1c1c24 0%, #18181c 100%);
+            --bg-input: linear-gradient(145deg, #1c1c24 0%, #18181c 100%);
+            --border-color: rgba(39, 39, 42, 0.6);
+            --border-hover: rgba(63, 63, 70, 0.8);
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --text-placeholder: #52525b;
+            --accent-violet: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --shadow-panel: 0 4px 24px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.02);
+            --shadow-card: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(139, 92, 246, 0.15);
+        }
+        
+        body.light-theme {
+            --bg-primary: linear-gradient(135deg, #f8f8fa 0%, #f0f0f5 50%, #f8f8fa 100%);
+            --bg-panel: linear-gradient(180deg, #ffffff 0%, #fafafc 100%);
+            --bg-card: linear-gradient(145deg, #ffffff 0%, #f5f5f8 100%);
+            --bg-input: linear-gradient(145deg, #ffffff 0%, #f8f8fa 100%);
+            --border-color: rgba(200, 200, 210, 0.6);
+            --border-hover: rgba(180, 180, 190, 0.8);
+            --text-primary: #18181b;
+            --text-secondary: #52525b;
+            --text-muted: #71717a;
+            --text-placeholder: #a1a1aa;
+            --shadow-panel: 0 4px 24px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
+            --shadow-card: 0 12px 32px rgba(0,0,0,0.08), 0 0 0 1px rgba(139, 92, 246, 0.1);
+        }
+        
+        body { 
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            min-height: 100vh;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        .panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-panel);
+        }
+        .panel:hover {
+            border-color: var(--border-hover);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15), 0 0 0 1px rgba(139, 92, 246, 0.08), inset 0 1px 0 rgba(255,255,255,0.03);
+        }
+        body.light-theme .panel:hover {
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08), 0 0 0 1px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255,255,255,0.5);
+        }
+        .segment-card {
+            background: var(--bg-card);
+            border: 1px solid #27272a;
+            border-radius: 12px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: grab;
+            animation: fadeInUp 0.3s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .segment-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card);
+        }
+        .segment-card:active { cursor: grabbing; transform: scale(0.98); }
+        .timeline-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px) scale(0.98); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        .timeline-item:hover { 
+            border-color: var(--border-hover);
+            transform: translateX(6px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+        }
+        .chord-display {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            letter-spacing: 0.05em;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            color: white;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: left 0.5s;
+        }
+        .btn-primary:hover::before { left: 100%; }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35);
+            border-color: rgba(139, 92, 246, 0.5);
+        }
+        .btn-primary:active { transform: translateY(0) scale(0.98); }
+        
+        .btn-accent {
+            background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+            color: white;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-accent::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: left 0.5s;
+        }
+        .btn-accent:hover::before { left: 100%; }
+        .btn-accent:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.35);
+            border-color: rgba(6, 182, 212, 0.5);
+        }
+        .btn-accent:active { transform: translateY(0) scale(0.98); }
+        
+        .btn-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-icon:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-color: var(--border-hover);
+            transform: translateY(-1px);
+        }
+        .btn-icon:active { transform: translateY(0) scale(0.95); }
+        
+        .btn-secondary {
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-secondary:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-color: var(--border-hover);
+            transform: translateY(-1px);
+        }
+        .btn-danger {
+            background: rgba(127, 29, 29, 0.3);
+            color: #fca5a5;
+            border: 1px solid rgba(127, 29, 29, 0.5);
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .btn-danger:hover { 
+            background: rgba(127, 29, 29, 0.5); 
+            transform: translateY(-1px);
+            border-color: rgba(127, 29, 29, 0.7);
+        }
+        .instrument-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .instrument-icon.active {
+            box-shadow: 0 0 10px currentColor;
+            animation: pulse 2.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 6px currentColor; }
+            50% { box-shadow: 0 0 14px currentColor; }
+        }
+        .instrument-icon.inactive { opacity: 0.15; }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            animation: fadeIn 0.2s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 28px;
+            width: 520px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 24px 64px rgba(0,0,0,0.3), 0 0 0 1px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255,255,255,0.02);
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        input, select, textarea {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: var(--text-primary);
+            width: 100%;
+            outline: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        input:focus, select:focus, textarea:focus { 
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        input::placeholder, textarea::placeholder { color: var(--text-placeholder); }
+        .toggle-btn {
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .toggle-btn:hover { border-color: var(--border-hover); }
+        .toggle-btn.active {
+            border-color: currentColor;
+            background: linear-gradient(145deg, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.08) 100%);
+            transform: scale(1.02);
+            box-shadow: 0 0 16px currentColor;
+        }
+        .scrollbar::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        .scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(63, 63, 70, 0.5);
+            border-radius: 3px;
+        }
+        .scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(82, 82, 91, 0.7); }
+        .drop-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .drop-zone.drag-over {
+            border-color: rgba(139, 92, 246, 0.6);
+            background: rgba(139, 92, 246, 0.06);
+            transform: scale(1.005);
+        }
+        .edit-btn {
+            opacity: 0;
+            transform: translateX(-8px);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .segment-card:hover .edit-btn { 
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .type-intro { border-left-color: #3b82f6; }
+        .type-verse { border-left-color: #22c55e; }
+        .type-chorus { border-left-color: #f97316; }
+        .type-interlude { border-left-color: #a855f7; }
+        .type-outro { border-left-color: #ec4899; }
+        #pdfPreview {
+            position: fixed;
+            left: -9999px;
+            top: 0;
+            width: 794px;
+            background: white;
+            color: black;
+            padding: 40px;
+        }
+        .song-title-input {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            font-weight: 600;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: text;
+            transition: all 0.2s;
+            letter-spacing: -0.01em;
+        }
+        .song-title-input:hover { border-color: var(--border-color); }
+        .song-title-input:focus {
+            border-color: rgba(139, 92, 246, 0.5);
+            background: rgba(139, 92, 246, 0.05);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        .switch-toggle {
+            position: relative;
+            width: 48px;
+            height: 26px;
+            background: linear-gradient(145deg, var(--border-color) 0%, rgba(0,0,0,0.1) 100%);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .switch-toggle.active { 
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.4), inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .switch-toggle::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%);
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .switch-toggle.active::after { left: 25px; }
+        .tutorial-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            display: none;
+        }
+        .tutorial-overlay.active { display: block; }
+        .tutorial-step {
+            position: absolute;
+            background: var(--bg-card);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            border-radius: 16px;
+            padding: 20px 24px;
+            max-width: 300px;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.3), 0 0 40px rgba(139, 92, 246, 0.15), inset 0 1px 0 rgba(255,255,255,0.02);
+            animation: popIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.9) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .tutorial-highlight {
+            position: absolute;
+            border: 2px solid rgba(139, 92, 246, 0.6);
+            border-radius: 14px;
+            box-shadow: 0 0 0 9999px rgba(0,0,0,0.75), 0 0 30px rgba(139, 92, 246, 0.3);
+            pointer-events: none;
+            animation: highlightPulse 2s infinite;
+        }
+        @keyframes highlightPulse {
+            0%, 100% { box-shadow: 0 0 0 9999px rgba(0,0,0,0.75), 0 0 20px rgba(139, 92, 246, 0.3); }
+            50% { box-shadow: 0 0 0 9999px rgba(0,0,0,0.75), 0 0 40px rgba(139, 92, 246, 0.5); }
+        }
+        .help-btn {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            box-shadow: 0 8px 28px rgba(139, 92, 246, 0.4), 0 0 0 1px rgba(139, 92, 246, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 50;
+        }
+        .help-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 12px 36px rgba(139, 92, 246, 0.5), 0 0 0 1px rgba(139, 92, 246, 0.4);
+        }
+        .stat-number {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="p-5">
+    <div class="max-w-7xl mx-auto h-[calc(100vh-2.5rem)] flex flex-col gap-5">
+        <!-- Header -->
+        <header class="panel p-5 flex items-center justify-between">
+            <div class="flex items-center gap-5">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-xl shadow-violet-500/20">
+                    ♪
+                </div>
+                <div>
+                    <input type="text" id="songTitle" value="《静止》" class="song-title-input text-xl" onchange="updateSongInfo()">
+                    <div class="flex items-center gap-3 mt-1.5">
+                        <input type="text" id="songArtist" value="花儿乐队" class="text-sm bg-transparent border-none text-zinc-400 focus:text-zinc-200 focus:outline-none" placeholder="艺人" onchange="updateSongInfo()">
+                        <span class="text-zinc-700">·</span>
+                        <div class="relative" id="keySelectorContainer">
+                            <button onclick="toggleKeySelector()" class="flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-200 transition" id="keyDisplay">
+                                <span>G</span>
+                                <span class="text-xs">大调</span>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                            <div id="keySelector" class="hidden absolute top-full left-0 mt-2 bg-[#1c1c24] border border-zinc-700 rounded-xl p-4 shadow-2xl z-50 w-72">
+                                <div class="mb-3">
+                                    <label class="text-xs text-zinc-500 mb-2 block">音名</label>
+                                    <div class="grid grid-cols-6 gap-1">
+                                        <button onclick="selectKeyNote('C')" class="key-note-btn px-2 py-1.5 text-sm rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-note="C">C</button>
+                                        <button onclick="selectKeyNote('C#')" class="key-note-btn px-2 py-1.5 text-sm rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-note="C#">C#</button>
+                                        <button onclick="selectKeyNote('Db')" class="key-note-btn px-2 py-1.5 text-sm rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-note="Db">Db</button>
+                                        <button onclick="selectKeyNote('D')" class="key-note-btn px-2 py-1.5 text-sm rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-note="D">D</button>
+                                        <button onclick="selectKeyNote('D#')" class="key-note-btn px-2 py-1.5 text-sm rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-note="D#">D#</button>
+                                        <button onclick="selectKeyNote('Eb')" class="key-note-btn px-2 py-1.5 text-sm rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-note="Eb">Eb</button>
+                                        <button onclick="selectKeyNote('E')" class="key-note-btn px-2 py-1.5 text-sm rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-note="E">E</button>
+                                        <button onclick="selectKeyNote('F')" class="key-note-btn px-2 py-1.5 text-sm rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-note="F">F</button>
+                                        <button onclick="selectKeyNote('F#')" class="key-note-btn px-2 py-1.5 text-sm rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-note="F#">F#</button>
+                                        <button onclick="selectKeyNote('Gb')" class="key-note-btn px-2 py-1.5 text-sm rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-note="Gb">Gb</button>
+                                        <button onclick="selectKeyNote('G')" class="key-note-btn px-2 py-1.5 text-sm rounded-lg bg-violet-600 text-white transition" data-note="G">G</button>
+                                        <button onclick="selectKeyNote('G#')" class="key-note-btn px-2 py-1.5 text-sm rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-note="G#">G#</button>
+                                        <button onclick="selectKeyNote('Ab')" class="key-note-btn px-2 py-1.5 text-sm rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-note="Ab">Ab</button>
+                                        <button onclick="selectKeyNote('A')" class="key-note-btn px-2 py-1.5 text-sm rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-note="A">A</button>
+                                        <button onclick="selectKeyNote('A#')" class="key-note-btn px-2 py-1.5 text-sm rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-note="A#">A#</button>
+                                        <button onclick="selectKeyNote('Bb')" class="key-note-btn px-2 py-1.5 text-sm rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-note="Bb">Bb</button>
+                                        <button onclick="selectKeyNote('B')" class="key-note-btn px-2 py-1.5 text-sm rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-note="B">B</button>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="text-xs text-zinc-500 mb-2 block">调式</label>
+                                    <div class="flex gap-2">
+                                        <button onclick="selectKeyMode('major')" class="key-mode-btn flex-1 py-1.5 text-sm rounded-lg bg-violet-600 text-white transition" data-mode="major">大调</button>
+                                        <button onclick="selectKeyMode('minor')" class="key-mode-btn flex-1 py-1.5 text-sm rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-mode="minor">小调</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-zinc-500 mb-2 block">其他音阶</label>
+                                    <div class="grid grid-cols-3 gap-1">
+                                        <button onclick="selectKeyScale('dorian')" class="key-scale-btn px-2 py-1 text-xs rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-scale="dorian">Dorian</button>
+                                        <button onclick="selectKeyScale('phrygian')" class="key-scale-btn px-2 py-1 text-xs rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-scale="phrygian">Phrygian</button>
+                                        <button onclick="selectKeyScale('lydian')" class="key-scale-btn px-2 py-1 text-xs rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-scale="lydian">Lydian</button>
+                                        <button onclick="selectKeyScale('mixolydian')" class="key-scale-btn px-2 py-1 text-xs rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-scale="mixolydian">Mixolydian</button>
+                                        <button onclick="selectKeyScale('locrian')" class="key-scale-btn px-2 py-1 text-xs rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-scale="locrian">Locrian</button>
+                                        <button onclick="selectKeyScale('blues')" class="key-scale-btn px-2 py-1 text-xs rounded-lg bg-zinc-800 hover:bg-violet-600 transition" data-scale="blues">Blues</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="text-zinc-700">·</span>
+                        <input type="number" id="songBpm" value="130" min="60" max="200" class="text-sm bg-transparent border-none text-zinc-400 w-14 focus:text-zinc-200 focus:outline-none" onchange="updateSongInfo()">
+                        <span class="text-zinc-500 text-xs">BPM</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <!-- 级数/音名切换 -->
+                <div class="flex items-center gap-2 px-3 py-2 bg-zinc-900/60 rounded-xl border border-zinc-800/50">
+                    <span class="text-xs text-zinc-500 font-medium">级数</span>
+                    <div class="switch-toggle" id="noteToggle" onclick="toggleNoteMode()"></div>
+                    <span class="text-xs text-zinc-500 font-medium">音名</span>
+                </div>
+                
+                <div class="w-px h-8 bg-zinc-800 mx-1"></div>
+                
+                <button onclick="showImportModal()" class="btn-icon" title="导入">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </button>
+                <button onclick="undo()" class="btn-icon" title="撤销">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+                </button>
+                <button onclick="clearTimeline()" class="btn-icon" title="清空">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+                
+                <div class="w-px h-8 bg-zinc-800 mx-1"></div>
+                
+                <!-- 主题切换 -->
+                <button onclick="toggleTheme()" class="btn-icon" id="themeToggle" title="切换主题">
+                    <svg id="themeIconDark" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    <svg id="themeIconLight" class="hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
+                
+                <button onclick="showAddToLibraryModal()" class="btn-primary px-4 py-2.5 text-sm font-medium flex items-center gap-2 rounded-xl">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    新建段落
+                </button>
+                <button onclick="showExportModal()" class="btn-accent px-4 py-2.5 text-sm font-medium flex items-center gap-2 rounded-xl">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    导出
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex gap-5 overflow-hidden">
+            <!-- Left: Library -->
+            <div class="w-80 panel flex flex-col overflow-hidden" id="libraryPanel">
+                <div class="p-5 border-b border-zinc-800/60">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-600/20 flex items-center justify-center">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                            </div>
+                            <span class="font-semibold text-zinc-200">段落库</span>
+                        </div>
+                        <button onclick="showAddToLibraryModal()" class="w-7 h-7 rounded-lg bg-zinc-800 hover:bg-violet-600 hover:text-white text-zinc-400 flex items-center justify-center transition">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                        <input type="text" id="searchInput" placeholder="搜索段落..." class="text-sm pl-10 bg-zinc-900/50 border-zinc-800" oninput="renderLibrary()">
+                    </div>
+                </div>
+                <div id="libraryList" class="flex-1 overflow-y-auto p-4 space-y-3 scrollbar">
+                    <!-- Library items -->
+                </div>
+            </div>
+
+            <!-- Right: Timeline -->
+            <div class="flex-1 panel flex flex-col overflow-hidden" id="timelinePanel">
+                <div class="p-5 border-b border-zinc-800/60 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500/20 to-rose-600/20 flex items-center justify-center">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f472b6" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        </div>
+                        <span class="font-semibold text-zinc-200">时间轴编排</span>
+                    </div>
+                    </span>
+                    <div class="flex items-center gap-4 text-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="text-zinc-500">小节宽度</span>
+                            <input type="range" id="barWidth" min="40" max="120" value="70" class="w-24 accent-violet-500" oninput="updateTimeline()">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Timeline -->
+                <div id="timelineContainer" class="flex-1 overflow-y-auto p-5 scrollbar">
+                    <div id="timeline" class="space-y-3 min-h-[200px] drop-zone p-5"
+                         ondragover="allowDrop(event)" ondrop="drop(event)" ondragleave="dragLeave(event)">
+                        <div id="emptyTip" class="text-center py-20 text-zinc-600">
+                            <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-zinc-800/50 flex items-center justify-center">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#52525b" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>
+                            </div>
+                            <p class="text-lg text-zinc-400">从左侧拖拽段落到这里</p>
+                            <p class="text-sm mt-2 text-zinc-600">或点击「新建段落」创建自定义段落</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="p-5 border-t border-zinc-800/60 bg-gradient-to-r from-zinc-900/30 via-violet-900/5 to-zinc-900/30">
+                    <div class="flex items-center gap-10">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-zinc-200" id="statBars">0</div>
+                                <div class="text-xs text-zinc-500">总小节</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-zinc-200" id="statTime">0:00</div>
+                                <div class="text-xs text-zinc-500">预估时长</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-zinc-200" id="statCount">0</div>
+                                <div class="text-xs text-zinc-500">段落数</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Segment Modal -->
+    <div id="segmentModal" class="modal-overlay" onclick="if(event.target===this)closeSegmentModal()">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-white" id="segmentModalTitle">编辑段落</h3>
+                <button onclick="closeSegmentModal()" class="text-zinc-500 hover:text-white text-xl transition">×</button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-zinc-400 mb-1">段落名称</label>
+                    <input type="text" id="segName" placeholder="如：前奏 INTRO">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-zinc-400 mb-1">小节数</label>
+                        <input type="number" id="segBars" min="1" max="64" value="8">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-zinc-400 mb-1">段落类型</label>
+                        <select id="segType">
+                            <option value="intro">前奏</option>
+                            <option value="verse">主歌</option>
+                            <option value="chorus">副歌</option>
+                            <option value="interlude">间奏</option>
+                            <option value="outro">尾奏</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm text-zinc-400 mb-1">和弦进行（级数）</label>
+                    <input type="text" id="segChords" placeholder="如：Ⅰ-Ⅴ-Ⅵ-Ⅳ" class="chord-display text-lg">
+                    <div class="flex gap-2 mt-2 flex-wrap">
+                        <button onclick="insertChord('Ⅰ')" class="px-3 py-1.5 bg-zinc-800 rounded-lg text-sm hover:bg-violet-600 hover:text-white transition">Ⅰ</button>
+                        <button onclick="insertChord('Ⅱ')" class="px-3 py-1.5 bg-zinc-800 rounded-lg text-sm hover:bg-violet-600 hover:text-white transition">Ⅱ</button>
+                        <button onclick="insertChord('Ⅲ')" class="px-3 py-1.5 bg-zinc-800 rounded-lg text-sm hover:bg-violet-600 hover:text-white transition">Ⅲ</button>
+                        <button onclick="insertChord('Ⅳ')" class="px-3 py-1.5 bg-zinc-800 rounded-lg text-sm hover:bg-violet-600 hover:text-white transition">Ⅳ</button>
+                        <button onclick="insertChord('Ⅴ')" class="px-3 py-1.5 bg-zinc-800 rounded-lg text-sm hover:bg-violet-600 hover:text-white transition">Ⅴ</button>
+                        <button onclick="insertChord('Ⅵ')" class="px-3 py-1.5 bg-zinc-800 rounded-lg text-sm hover:bg-violet-600 hover:text-white transition">Ⅵ</button>
+                        <button onclick="insertChord('Ⅶ°')" class="px-3 py-1.5 bg-zinc-800 rounded-lg text-sm hover:bg-violet-600 hover:text-white transition">Ⅶ°</button>
+                        <button onclick="insertChord(' - ')" class="px-3 py-1.5 bg-zinc-800 rounded-lg text-sm hover:bg-zinc-700 transition">-</button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm text-zinc-400 mb-1">备注（可选）</label>
+                    <input type="text" id="segNote" placeholder="如：高潮、Solo等">
+                </div>
+                
+                <div>
+                    <label class="block text-sm text-zinc-400 mb-2">乐器配置</label>
+                    <input type="text" id="instSearch" placeholder="搜索乐器..." class="text-sm mb-3" oninput="filterInstruments()">
+                    <div id="instrumentList" class="flex flex-wrap gap-2 max-h-40 overflow-y-auto scrollbar">
+                        <!-- Instruments will be rendered here -->
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-zinc-700">
+                        <button onclick="showAddInstrumentModal()" class="text-xs text-violet-400 hover:text-violet-300 transition flex items-center gap-1">
+                            <span>+</span> 添加自定义乐器
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex gap-3 mt-6">
+                <button onclick="saveSegment()" class="flex-1 btn-primary py-2.5 font-medium">保存</button>
+                <button onclick="closeSegmentModal()" class="px-5 py-2.5 btn-secondary">取消</button>
+                <button id="deleteSegBtn" onclick="deleteSegment()" class="px-5 py-2.5 btn-danger hidden">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="exportModal" class="modal-overlay" onclick="if(event.target===this)closeExportModal()">
+        <div class="modal-content" style="width: 400px;">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-white">导出乐谱</h3>
+                <button onclick="closeExportModal()" class="text-zinc-500 hover:text-white text-xl transition">×</button>
+            </div>
+            <div class="space-y-3">
+                <button onclick="exportPDF()" class="w-full p-4 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-xl flex items-center gap-4 transition group">
+                    <div class="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center text-white text-xl font-bold group-hover:scale-110 transition">PDF</div>
+                    <div class="text-left">
+                        <div class="font-semibold text-white">导出为 PDF</div>
+                        <div class="text-sm text-zinc-400">适合打印和分享</div>
+                    </div>
+                </button>
+                <button onclick="exportImage()" class="w-full p-4 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 rounded-xl flex items-center gap-4 transition group">
+                    <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center text-white text-xl font-bold group-hover:scale-110 transition">PNG</div>
+                    <div class="text-left">
+                        <div class="font-semibold text-white">导出为图片</div>
+                        <div class="text-sm text-zinc-400">高清乐谱图片</div>
+                    </div>
+                </button>
+                <button onclick="exportJSON()" class="w-full p-4 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 rounded-xl flex items-center gap-4 transition group">
+                    <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center text-white text-xl font-bold group-hover:scale-110 transition">JSON</div>
+                    <div class="text-left">
+                        <div class="font-semibold text-white">导出为 JSON</div>
+                        <div class="text-sm text-zinc-400">保存编排数据</div>
+                    </div>
+                </button>
+            </div>
+            <button onclick="closeExportModal()" class="mt-4 w-full py-3 btn-secondary">取消</button>
+        </div>
+    </div>
+
+    <!-- Add Instrument Modal -->
+    <div id="addInstrumentModal" class="modal-overlay" onclick="if(event.target===this)closeAddInstrumentModal()">
+        <div class="modal-content" style="width: 400px;">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-white">添加自定义乐器</h3>
+                <button onclick="closeAddInstrumentModal()" class="text-zinc-500 hover:text-white text-xl transition">×</button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-zinc-400 mb-1">乐器名称</label>
+                    <input type="text" id="customInstName" placeholder="如：萨克斯">
+                </div>
+                <div>
+                    <label class="block text-sm text-zinc-400 mb-1">简称（1-2字）</label>
+                    <input type="text" id="customInstShort" placeholder="如：萨" maxlength="2">
+                </div>
+                <div>
+                    <label class="block text-sm text-zinc-400 mb-1">颜色</label>
+                    <div class="flex gap-2 flex-wrap">
+                        <button onclick="selectInstColor('#60a5fa')" class="inst-color-btn w-8 h-8 rounded-lg bg-blue-400 hover:scale-110 transition" data-color="#60a5fa"></button>
+                        <button onclick="selectInstColor('#f472b6')" class="inst-color-btn w-8 h-8 rounded-lg bg-pink-400 hover:scale-110 transition" data-color="#f472b6"></button>
+                        <button onclick="selectInstColor('#a78bfa')" class="inst-color-btn w-8 h-8 rounded-lg bg-purple-400 hover:scale-110 transition" data-color="#a78bfa"></button>
+                        <button onclick="selectInstColor('#fb923c')" class="inst-color-btn w-8 h-8 rounded-lg bg-orange-400 hover:scale-110 transition" data-color="#fb923c"></button>
+                        <button onclick="selectInstColor('#4ade80')" class="inst-color-btn w-8 h-8 rounded-lg bg-green-400 hover:scale-110 transition" data-color="#4ade80"></button>
+                        <button onclick="selectInstColor('#f87171')" class="inst-color-btn w-8 h-8 rounded-lg bg-red-400 hover:scale-110 transition" data-color="#f87171"></button>
+                        <button onclick="selectInstColor('#22d3ee')" class="inst-color-btn w-8 h-8 rounded-lg bg-cyan-400 hover:scale-110 transition" data-color="#22d3ee"></button>
+                        <button onclick="selectInstColor('#fbbf24')" class="inst-color-btn w-8 h-8 rounded-lg bg-amber-400 hover:scale-110 transition" data-color="#fbbf24"></button>
+                        <button onclick="selectInstColor('#a3e635')" class="inst-color-btn w-8 h-8 rounded-lg bg-lime-400 hover:scale-110 transition" data-color="#a3e635"></button>
+                        <button onclick="selectInstColor('#c084fc')" class="inst-color-btn w-8 h-8 rounded-lg bg-fuchsia-400 hover:scale-110 transition" data-color="#c084fc"></button>
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="saveCustomInstrument()" class="flex-1 btn-primary py-2.5 font-medium">添加</button>
+                <button onclick="closeAddInstrumentModal()" class="px-5 py-2.5 btn-secondary">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div id="importModal" class="modal-overlay" onclick="if(event.target===this)closeImportModal()">
+        <div class="modal-content" style="width: 450px;">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-white">导入乐谱</h3>
+                <button onclick="closeImportModal()" class="text-zinc-500 hover:text-white text-xl transition">×</button>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="p-6 bg-zinc-800/50 rounded-xl border-2 border-dashed border-zinc-600 text-center hover:border-violet-500/50 transition cursor-pointer" onclick="document.getElementById('importFile').click()">
+                    <div class="text-4xl mb-3">📁</div>
+                    <p class="text-zinc-400 mb-2">点击选择 JSON 文件</p>
+                    <p class="text-xs text-zinc-500">或拖拽文件到此处</p>
+                    <input type="file" id="importFile" accept=".json" class="hidden" onchange="handleFileSelect(event)">
+                </div>
+                
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-zinc-700"></div>
+                    </div>
+                    <div class="relative flex justify-center">
+                        <span class="px-2 bg-[#13131a] text-zinc-500 text-sm">或</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm text-zinc-400 mb-2">粘贴 JSON 数据</label>
+                    <textarea id="importText" rows="5" placeholder='{"song": "...", "segments": [...]}' class="text-sm font-mono"></textarea>
+                </div>
+                
+                <div class="flex items-center gap-2 p-3 bg-zinc-800/30 rounded-lg">
+                    <input type="checkbox" id="importReplace" class="w-4 h-4 accent-violet-500" checked>
+                    <label for="importReplace" class="text-sm text-zinc-400">替换当前编排（取消则追加）</label>
+                </div>
+            </div>
+            
+            <div class="flex gap-3 mt-6">
+                <button onclick="importFromText()" class="flex-1 btn-primary py-2.5 font-medium">导入</button>
+                <button onclick="closeImportModal()" class="px-5 py-2.5 btn-secondary">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tutorial Overlay -->
+    <div id="tutorialOverlay" class="tutorial-overlay">
+        <div class="tutorial-highlight" id="tutorialHighlight"></div>
+        <div class="tutorial-step" id="tutorialStep">
+            <h4 class="font-bold text-white mb-2" id="tutorialTitle">欢迎使用乐谱编排器</h4>
+            <p class="text-sm text-zinc-400 mb-4" id="tutorialText">这是一个快速上手指南</p>
+            <div class="flex justify-between items-center">
+                <span class="text-xs text-zinc-500" id="tutorialProgress">1/6</span>
+                <div class="flex gap-2">
+                    <button onclick="skipTutorial()" class="px-3 py-1.5 text-sm text-zinc-500 hover:text-white transition">跳过</button>
+                    <button onclick="nextTutorial()" class="px-4 py-1.5 text-sm bg-violet-600 text-white rounded-lg hover:bg-violet-500 transition">下一步</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Button -->
+    <div class="help-btn" onclick="startTutorial()" title="查看教程">?</div>
+
+    <!-- PDF Preview Container (hidden) -->
+    <div id="pdfPreview">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 id="pdfTitle" style="font-size: 32px; font-weight: bold; margin-bottom: 8px;">《静止》</h1>
+            <p id="pdfSubtitle" style="color: #666; font-size: 14px;">花儿乐队 | G大调 | 130 BPM | 4/4拍</p>
+        </div>
+        <div id="pdfContent"></div>
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #999; font-size: 12px;">
+            生成时间: <span id="pdfTime"></span>
+        </div>
+    </div>
+
+    <script>
+        // Type colors & names
+        const typeColors = { intro: '#3b82f6', verse: '#22c55e', chorus: '#f97316', interlude: '#a855f7', outro: '#ec4899' };
+        const typeNames = { intro: '前奏', verse: '主歌', chorus: '副歌', interlude: '间奏', outro: '尾奏' };
+        
+        // Scale degrees to note names mapping
+        const scaleDegrees = {
+            'C': ['C', 'Dm', 'Em', 'F', 'G', 'Am', 'B°'],
+            'D': ['D', 'Em', 'F#m', 'G', 'A', 'Bm', 'C#°'],
+            'E': ['E', 'F#m', 'G#m', 'A', 'B', 'C#m', 'D#°'],
+            'F': ['F', 'Gm', 'Am', 'Bb', 'C', 'Dm', 'E°'],
+            'G': ['G', 'Am', 'Bm', 'C', 'D', 'Em', 'F#°'],
+            'A': ['A', 'Bm', 'C#m', 'D', 'E', 'F#m', 'G#°'],
+            'B': ['B', 'C#m', 'D#m', 'E', 'F#', 'G#m', 'A#°']
+        };
+        
+        const romanToIndex = { 'Ⅰ': 0, 'Ⅱ': 1, 'Ⅲ': 2, 'Ⅳ': 3, 'Ⅴ': 4, 'Ⅵ': 5, 'Ⅶ': 6 };
+        
+        // State
+        let songInfo = { title: '《静止》', artist: '花儿乐队', keyNote: 'G', keyMode: 'major', keyScale: null, bpm: 130 };
+        let showNoteNames = false;
+        let library = [];
+        let timeline = [];
+        let editingLibraryId = null;
+        let editingTimelineIndex = null;
+        let tempInst = {};
+        let draggedId = null;
+        let tutorialStep = 0;
+        let selectedInstColor = '#60a5fa';
+        let currentTheme = 'dark';
+        
+        // Key selector state
+        let tempKeyNote = 'G';
+        let tempKeyMode = 'major';
+        let tempKeyScale = null;
+        
+        // Scale definitions for chord conversion
+        const scaleDefinitions = {
+            'C': ['C', 'Dm', 'Em', 'F', 'G', 'Am', 'Bdim'],
+            'C#': ['C#', 'D#m', 'Fm', 'F#', 'G#', 'A#m', 'Cdim'],
+            'Db': ['Db', 'Ebm', 'Fm', 'Gb', 'Ab', 'Bbm', 'Cdim'],
+            'D': ['D', 'Em', 'F#m', 'G', 'A', 'Bm', 'C#dim'],
+            'D#': ['D#', 'Fm', 'Gm', 'G#', 'A#', 'Cm', 'Ddim'],
+            'Eb': ['Eb', 'Fm', 'Gm', 'Ab', 'Bb', 'Cm', 'Ddim'],
+            'E': ['E', 'F#m', 'G#m', 'A', 'B', 'C#m', 'D#dim'],
+            'F': ['F', 'Gm', 'Am', 'Bb', 'C', 'Dm', 'Edim'],
+            'F#': ['F#', 'G#m', 'A#m', 'B', 'C#', 'D#m', 'Fdim'],
+            'Gb': ['Gb', 'Abm', 'Bbm', 'Cb', 'Db', 'Ebm', 'Gdim'],
+            'G': ['G', 'Am', 'Bm', 'C', 'D', 'Em', 'F#dim'],
+            'G#': ['G#', 'A#m', 'Cm', 'C#', 'D#', 'Fm', 'Gdim'],
+            'Ab': ['Ab', 'Bbm', 'Cm', 'Db', 'Eb', 'Fm', 'Gdim'],
+            'A': ['A', 'Bm', 'C#m', 'D', 'E', 'F#m', 'G#dim'],
+            'A#': ['A#', 'Cm', 'Dm', 'D#', 'F', 'Gm', 'Adim'],
+            'Bb': ['Bb', 'Cm', 'Dm', 'Eb', 'F', 'Gm', 'Adim'],
+            'B': ['B', 'C#m', 'D#m', 'E', 'F#', 'G#m', 'A#dim']
+        };
+        
+        // Comprehensive instrument list
+        let instrumentList = [
+            { key: 'vocalM', name: '男主唱', short: '男', color: '#60a5fa', category: 'vocal' },
+            { key: 'vocalF', name: '女主唱', short: '女', color: '#f472b6', category: 'vocal' },
+            { key: 'vocalBG', name: '和声', short: '和', color: '#c084fc', category: 'vocal' },
+            { key: 'lead', name: '主音吉他', short: '主', color: '#a78bfa', category: 'guitar' },
+            { key: 'rhythm', name: '节奏吉他', short: '节', color: '#fb923c', category: 'guitar' },
+            { key: 'acoustic', name: '木吉他', short: '木', color: '#d4a574', category: 'guitar' },
+            { key: 'bass', name: '贝斯', short: '贝', color: '#4ade80', category: 'bass' },
+            { key: 'doubleBass', name: '低音提琴', short: '低', color: '#84cc16', category: 'bass' },
+            { key: 'drum', name: '鼓', short: '鼓', color: '#f87171', category: 'drums' },
+            { key: 'percussion', name: '打击乐', short: '击', color: '#fbbf24', category: 'drums' },
+            { key: 'keyboard', name: '键盘', short: '键', color: '#22d3ee', category: 'keys' },
+            { key: 'piano', name: '钢琴', short: '钢', color: '#38bdf8', category: 'keys' },
+            { key: 'synth', name: '合成器', short: '合', color: '#818cf8', category: 'keys' },
+            { key: 'organ', name: '管风琴', short: '管', color: '#a78bfa', category: 'keys' },
+            { key: 'strings', name: '弦乐组', short: '弦', color: '#f0abfc', category: 'strings' },
+            { key: 'violin', name: '小提琴', short: '小', color: '#fda4af', category: 'strings' },
+            { key: 'cello', name: '大提琴', short: '大', color: '#c4b5fd', category: 'strings' },
+            { key: 'sax', name: '萨克斯', short: '萨', color: '#fcd34d', category: 'wind' },
+            { key: 'trumpet', name: '小号', short: '号', color: '#fdba74', category: 'wind' },
+            { key: 'trombone', name: '长号', short: '长', color: '#fca5a5', category: 'wind' },
+            { key: 'flute', name: '长笛', short: '笛', color: '#86efac', category: 'wind' },
+            { key: 'clarinet', name: '单簧管', short: '簧', color: '#93c5fd', category: 'wind' },
+            { key: 'harmonica', name: '口琴', short: '口', color: '#5eead4', category: 'wind' },
+            { key: 'dj', name: 'DJ/搓盘', short: 'DJ', color: '#a3e635', category: 'electronic' },
+            { key: 'sampler', name: '采样器', short: '采', color: '#bef264', category: 'electronic' }
+        ];
+        
+        // Custom instruments (loaded from localStorage)
+        let customInstruments = [];
+        
+        // Initialize library with minimal templates
+        function initLibrary() {
+            library = [
+                { id: 1, name: '前奏 INTRO', type: 'intro', bars: 8, chords: 'Ⅰ-Ⅴ-Ⅵm-Ⅳ', note: '', inst: { vocalM: 0, vocalF: 0, lead: 1, rhythm: 1, bass: 1, drum: 1 }},
+                { id: 2, name: '主歌 VERSE', type: 'verse', bars: 8, chords: 'Ⅰ-Ⅰ-Ⅵm-Ⅵm-Ⅳ-Ⅴ-Ⅰ-Ⅰ', note: '', inst: { vocalM: 1, vocalF: 0, rhythm: 1, bass: 1, drum: 1 }},
+                { id: 3, name: '副歌 CHORUS', type: 'chorus', bars: 8, chords: 'Ⅵm-Ⅳ-Ⅰ-Ⅴ', note: '', inst: { vocalM: 1, vocalF: 0, lead: 1, rhythm: 1, bass: 1, drum: 1 }},
+                { id: 4, name: '间奏 INTERLUDE', type: 'interlude', bars: 8, chords: 'Ⅰ-Ⅴ-Ⅵm-Ⅳ', note: '', inst: { lead: 1, rhythm: 1, bass: 1, drum: 1 }},
+                { id: 5, name: '尾奏 OUTRO', type: 'outro', bars: 8, chords: 'Ⅰ', note: '', inst: { lead: 1, rhythm: 1, bass: 1, drum: 1 }},
+            ];
+        }
+
+        // Convert roman numerals to note names
+        function convertToNoteNames(chords, keyInfo) {
+            if (!showNoteNames) return chords;
+            const scale = scaleDefinitions[keyInfo.keyNote];
+            if (!scale) return chords;
+            
+            // For minor keys, adjust the scale
+            let adjustedScale = scale;
+            if (keyInfo.keyMode === 'minor') {
+                // Relative minor: start from the 6th degree
+                adjustedScale = [scale[5], scale[6], scale[0], scale[1], scale[2], scale[3], scale[4]];
+            }
+            
+            return chords.replace(/Ⅰ|Ⅱ|Ⅲ|Ⅳ|Ⅴ|Ⅵ|Ⅶ/g, match => {
+                const idx = romanToIndex[match];
+                return adjustedScale[idx] || match;
+            });
+        }
+
+        // Toggle note mode
+        function toggleNoteMode() {
+            showNoteNames = !showNoteNames;
+            document.getElementById('noteToggle').classList.toggle('active', showNoteNames);
+            renderLibrary();
+            updateTimeline();
+        }
+        
+        // Theme toggle
+        function toggleTheme() {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.classList.toggle('light-theme', currentTheme === 'light');
+            document.getElementById('themeIconDark').classList.toggle('hidden', currentTheme === 'light');
+            document.getElementById('themeIconLight').classList.toggle('hidden', currentTheme === 'dark');
+            localStorage.setItem('theme', currentTheme);
+        }
+        
+        // Key selector functions
+        function toggleKeySelector() {
+            const selector = document.getElementById('keySelector');
+            selector.classList.toggle('hidden');
+            if (!selector.classList.contains('hidden')) {
+                tempKeyNote = songInfo.keyNote;
+                tempKeyMode = songInfo.keyMode;
+                tempKeyScale = songInfo.keyScale;
+                updateKeySelectorUI();
+            }
+        }
+        
+        function selectKeyNote(note) {
+            tempKeyNote = note;
+            tempKeyScale = null;
+            updateKeySelectorUI();
+            applyKeySelection();
+        }
+        
+        function selectKeyMode(mode) {
+            tempKeyMode = mode;
+            tempKeyScale = null;
+            updateKeySelectorUI();
+            applyKeySelection();
+        }
+        
+        function selectKeyScale(scale) {
+            tempKeyScale = scale;
+            updateKeySelectorUI();
+            applyKeySelection();
+        }
+        
+        function updateKeySelectorUI() {
+            document.querySelectorAll('.key-note-btn').forEach(btn => {
+                btn.classList.toggle('bg-violet-600', btn.dataset.note === tempKeyNote);
+                btn.classList.toggle('text-white', btn.dataset.note === tempKeyNote);
+                btn.classList.toggle('bg-zinc-800', btn.dataset.note !== tempKeyNote);
+            });
+            document.querySelectorAll('.key-mode-btn').forEach(btn => {
+                btn.classList.toggle('bg-violet-600', btn.dataset.mode === tempKeyMode && !tempKeyScale);
+                btn.classList.toggle('text-white', btn.dataset.mode === tempKeyMode && !tempKeyScale);
+                btn.classList.toggle('bg-zinc-800', btn.dataset.mode !== tempKeyMode || tempKeyScale);
+            });
+            document.querySelectorAll('.key-scale-btn').forEach(btn => {
+                btn.classList.toggle('bg-violet-600', btn.dataset.scale === tempKeyScale);
+                btn.classList.toggle('text-white', btn.dataset.scale === tempKeyScale);
+                btn.classList.toggle('bg-zinc-800', btn.dataset.scale !== tempKeyScale);
+            });
+        }
+        
+        function applyKeySelection() {
+            songInfo.keyNote = tempKeyNote;
+            songInfo.keyMode = tempKeyMode;
+            songInfo.keyScale = tempKeyScale;
+            updateKeyDisplay();
+            renderLibrary();
+            updateTimeline();
+        }
+        
+        function updateKeyDisplay() {
+            const display = document.getElementById('keyDisplay');
+            let text = songInfo.keyNote;
+            if (songInfo.keyScale) {
+                text += ' ' + songInfo.keyScale.charAt(0).toUpperCase() + songInfo.keyScale.slice(1);
+            } else {
+                text += songInfo.keyMode === 'major' ? ' 大调' : ' 小调';
+            }
+            display.querySelector('span:first-child').textContent = songInfo.keyNote;
+            display.querySelector('span:nth-child(2)').textContent = songInfo.keyScale ? 
+                ' ' + songInfo.keyScale.charAt(0).toUpperCase() + songInfo.keyScale.slice(1) :
+                (songInfo.keyMode === 'major' ? ' 大调' : ' 小调');
+        }
+        
+        // Close key selector when clicking outside
+        document.addEventListener('click', function(e) {
+            const container = document.getElementById('keySelectorContainer');
+            const selector = document.getElementById('keySelector');
+            if (container && selector && !container.contains(e.target)) {
+                selector.classList.add('hidden');
+            }
+        });
+
+        // Init
+        function init() {
+            // Load theme from localStorage
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                currentTheme = savedTheme;
+                document.body.classList.toggle('light-theme', currentTheme === 'light');
+                document.getElementById('themeIconDark').classList.toggle('hidden', currentTheme === 'light');
+                document.getElementById('themeIconLight').classList.toggle('hidden', currentTheme === 'dark');
+            }
+            
+            // Load custom instruments from localStorage
+            const saved = localStorage.getItem('customInstruments');
+            if (saved) {
+                customInstruments = JSON.parse(saved);
+                instrumentList = [...instrumentList, ...customInstruments];
+            }
+            
+            initLibrary();
+            renderLibrary();
+            updateTimeline();
+            updateKeyDisplay();
+            
+            // Check if first visit
+            if (!localStorage.getItem('tutorialSeen')) {
+                setTimeout(startTutorial, 500);
+            }
+        }
+        
+        // Render instrument buttons in modal
+        function renderInstrumentButtons() {
+            const container = document.getElementById('instrumentList');
+            const search = document.getElementById('instSearch')?.value?.toLowerCase() || '';
+            container.innerHTML = '';
+            
+            const filtered = instrumentList.filter(inst => 
+                inst.name.toLowerCase().includes(search) || 
+                inst.short.toLowerCase().includes(search)
+            );
+            
+            filtered.forEach(inst => {
+                const btn = document.createElement('button');
+                btn.onclick = () => toggleInst(inst.key);
+                btn.id = `btn-${inst.key}`;
+                btn.className = 'toggle-btn';
+                btn.style.color = inst.color;
+                btn.innerHTML = `<span>${inst.short}</span> ${inst.name}`;
+                if (tempInst[inst.key]) btn.classList.add('active');
+                container.appendChild(btn);
+            });
+        }
+        
+        function filterInstruments() {
+            renderInstrumentButtons();
+        }
+        
+        function showAddInstrumentModal() {
+            document.getElementById('customInstName').value = '';
+            document.getElementById('customInstShort').value = '';
+            selectedInstColor = '#60a5fa';
+            document.querySelectorAll('.inst-color-btn').forEach(btn => {
+                btn.style.boxShadow = btn.dataset.color === selectedInstColor ? '0 0 0 3px white' : 'none';
+            });
+            document.getElementById('addInstrumentModal').classList.add('active');
+        }
+        
+        function closeAddInstrumentModal() {
+            document.getElementById('addInstrumentModal').classList.remove('active');
+        }
+        
+        function selectInstColor(color) {
+            selectedInstColor = color;
+            document.querySelectorAll('.inst-color-btn').forEach(btn => {
+                btn.style.boxShadow = btn.dataset.color === color ? '0 0 0 3px white' : 'none';
+            });
+        }
+        
+        function saveCustomInstrument() {
+            const name = document.getElementById('customInstName').value.trim();
+            const short = document.getElementById('customInstShort').value.trim();
+            
+            if (!name || !short) {
+                alert('请填写乐器名称和简称');
+                return;
+            }
+            
+            const key = 'custom_' + Date.now();
+            const newInst = { key, name, short, color: selectedInstColor, category: 'custom' };
+            
+            customInstruments.push(newInst);
+            instrumentList.push(newInst);
+            localStorage.setItem('customInstruments', JSON.stringify(customInstruments));
+            
+            renderInstrumentButtons();
+            closeAddInstrumentModal();
+        }
+
+        // Tutorial
+        const tutorialSteps = [
+            { title: '欢迎使用乐谱编排器！', text: '这是一个可视化歌曲编排工具，让你轻松拖拽组合段落。', element: null },
+            { title: '编辑歌曲信息', text: '点击这里可以修改歌名、艺人、调性和速度。', element: 'songTitle' },
+            { title: '段落库', text: '这里存放所有可用的段落，鼠标悬停可编辑，拖拽到右侧时间轴使用。', element: 'libraryPanel' },
+            { title: '时间轴编排', text: '拖拽段落到这里，按顺序排列你的歌曲结构。段落长度会根据小节数自动调整。', element: 'timelinePanel' },
+            { title: '乐器配置', text: '编辑段落时，可以配置乐器。支持搜索乐器，还可以添加自定义乐器！', element: null },
+            { title: '级数/音名切换', text: '点击切换显示罗马级数或实际音名。', element: 'noteToggle' },
+            { title: '导出乐谱', text: '编排完成后，可以导出为PDF、图片或JSON保存。导出的段落长度会根据小节数显示。', element: null }
+        ];
+
+        function startTutorial() {
+            tutorialStep = 0;
+            document.getElementById('tutorialOverlay').classList.add('active');
+            showTutorialStep();
+        }
+
+        function showTutorialStep() {
+            const step = tutorialSteps[tutorialStep];
+            document.getElementById('tutorialTitle').textContent = step.title;
+            document.getElementById('tutorialText').textContent = step.text;
+            document.getElementById('tutorialProgress').textContent = `${tutorialStep + 1}/${tutorialSteps.length}`;
+            
+            const highlight = document.getElementById('tutorialHighlight');
+            const stepBox = document.getElementById('tutorialStep');
+            
+            // Reset transform
+            stepBox.style.transform = 'none';
+            
+            if (step.element) {
+                const el = document.getElementById(step.element);
+                const rect = el.getBoundingClientRect();
+                highlight.style.display = 'block';
+                highlight.style.left = rect.left - 8 + 'px';
+                highlight.style.top = rect.top - 8 + 'px';
+                highlight.style.width = rect.width + 16 + 'px';
+                highlight.style.height = rect.height + 16 + 'px';
+                
+                // Position step box with boundary checks
+                const boxWidth = 280;
+                const boxHeight = 120;
+                const margin = 16;
+                
+                // Calculate available space
+                const spaceAbove = rect.top;
+                const spaceBelow = window.innerHeight - rect.bottom;
+                const spaceLeft = rect.left;
+                const spaceRight = window.innerWidth - rect.right;
+                
+                let top, left;
+                
+                // Decide vertical position (prefer below, then above)
+                if (spaceBelow >= boxHeight + margin) {
+                    top = rect.bottom + margin;
+                } else if (spaceAbove >= boxHeight + margin) {
+                    top = rect.top - boxHeight - margin;
+                } else {
+                    // Not enough space above or below, center vertically
+                    top = Math.max(margin, (window.innerHeight - boxHeight) / 2);
+                }
+                
+                // Decide horizontal position (center on element, but keep in bounds)
+                left = rect.left + rect.width / 2 - boxWidth / 2;
+                left = Math.max(margin, Math.min(left, window.innerWidth - boxWidth - margin));
+                
+                stepBox.style.top = top + 'px';
+                stepBox.style.left = left + 'px';
+            } else {
+                highlight.style.display = 'none';
+                // Center in viewport
+                stepBox.style.top = '50%';
+                stepBox.style.left = '50%';
+                stepBox.style.transform = 'translate(-50%, -50%)';
+            }
+        }
+
+        function nextTutorial() {
+            tutorialStep++;
+            if (tutorialStep >= tutorialSteps.length) {
+                skipTutorial();
+            } else {
+                showTutorialStep();
+            }
+        }
+
+        function skipTutorial() {
+            document.getElementById('tutorialOverlay').classList.remove('active');
+            localStorage.setItem('tutorialSeen', 'true');
+        }
+
+        // Update song info
+        function updateSongInfo() {
+            songInfo.title = document.getElementById('songTitle').value;
+            songInfo.artist = document.getElementById('songArtist').value;
+            songInfo.bpm = parseInt(document.getElementById('songBpm').value);
+            renderLibrary();
+            updateTimeline();
+        }
+
+        // Render Library
+        function renderLibrary() {
+            const container = document.getElementById('libraryList');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            container.innerHTML = '';
+            
+            Object.entries(typeNames).forEach(([type, name]) => {
+                const items = library.filter(s => s.type === type && s.name.toLowerCase().includes(search));
+                if (items.length === 0) return;
+                
+                const group = document.createElement('div');
+                group.innerHTML = `<div class="text-xs text-zinc-500 uppercase tracking-wider mb-2">${name}</div>`;
+                
+                items.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'segment-card p-3 mb-2 relative';
+                    card.draggable = true;
+                    const displayChords = convertToNoteNames(item.chords, songInfo);
+                    card.innerHTML = `
+                        <button onclick="editLibraryItem(${item.id})" class="edit-btn absolute top-2 right-2 w-6 h-6 bg-zinc-800 rounded flex items-center justify-center text-zinc-400 hover:text-white z-10">✎</button>
+                        <div class="flex items-center gap-2 mb-2 pr-8">
+                            <span class="w-2 h-2 rounded-full" style="background: ${typeColors[item.type]}"></span>
+                            <span class="font-medium text-sm" style="color: var(--text-primary)">${item.name}</span>
+                        </div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="text-xs px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">${item.bars}小节</span>
+                            ${item.note ? `<span class="text-xs px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-400">${item.note}</span>` : ''}
+                        </div>
+                        <div class="text-base chord-display text-violet-400 font-medium mb-2">${displayChords}</div>
+                        <div class="flex gap-1">
+                            ${renderInstIcons(item.inst)}
+                        </div>
+                    `;
+                    card.ondragstart = (e) => { draggedId = item.id; e.dataTransfer.effectAllowed = 'copy'; };
+                    container.appendChild(card);
+                });
+                
+                container.appendChild(group);
+            });
+        }
+
+        // Render instrument icons
+        function renderInstIcons(inst) {
+            const icons = [];
+            instrumentList.forEach(instDef => {
+                const active = inst[instDef.key];
+                if (active) {
+                    icons.push(`<div class="instrument-icon active" style="background: ${instDef.color}30; color: ${instDef.color}; border: 1px solid ${instDef.color}" title="${instDef.name}">${instDef.short}</div>`);
+                }
+            });
+            // Show at least a placeholder if no instruments
+            if (icons.length === 0) {
+                icons.push(`<div class="instrument-icon inactive" style="color: #52525b;" title="无乐器">-</div>`);
+            }
+            return icons.join('');
+        }
+
+        // Drag & Drop
+        function allowDrop(e) { e.preventDefault(); document.getElementById('timeline').classList.add('drag-over'); }
+        function dragLeave(e) { document.getElementById('timeline').classList.remove('drag-over'); }
+        function drop(e) {
+            e.preventDefault();
+            document.getElementById('timeline').classList.remove('drag-over');
+            if (draggedId) {
+                const item = library.find(s => s.id === draggedId);
+                if (item) { timeline.push({ ...item, uid: Date.now() }); updateTimeline(); }
+                draggedId = null;
+            }
+        }
+
+        // Update Timeline
+        function updateTimeline() {
+            const container = document.getElementById('timeline');
+            const barWidth = parseInt(document.getElementById('barWidth').value);
+            
+            if (timeline.length === 0) {
+                container.innerHTML = `
+                    <div id="emptyTip" class="text-center py-16 text-zinc-600">
+                        <div class="text-5xl mb-4 opacity-50 animate-bounce">⇣</div>
+                        <p class="text-lg">从左侧拖拽段落到这里</p>
+                        <p class="text-sm mt-2 text-zinc-500">或点击「新建」创建自定义段落</p>
+                    </div>
+                `;
+                updateStats();
+                return;
+            }
+            
+            container.innerHTML = '';
+            timeline.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = `timeline-item p-4 type-${item.type}`;
+                div.style.width = `${item.bars * barWidth}px`;
+                const displayChords = convertToNoteNames(item.chords, songInfo);
+                div.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-zinc-800 text-zinc-400 text-xs flex items-center justify-center font-bold">${idx + 1}</span>
+                            <span class="font-semibold" style="color: var(--text-primary)">${item.name}</span>
+                            ${item.note ? `<span class="text-xs px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-400">${item.note}</span>` : ''}
+                        </div>
+                        <div class="flex gap-1">
+                            <button onclick="editTimelineItem(${idx})" class="w-7 h-7 rounded-lg bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 flex items-center justify-center transition">✎</button>
+                            <button onclick="removeTimelineItem(${idx})" class="w-7 h-7 rounded-lg bg-zinc-800 text-zinc-400 hover:text-red-400 hover:bg-red-900/30 flex items-center justify-center transition">×</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-xs px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">${item.bars}小节</span>
+                    </div>
+                    <div class="text-lg chord-display text-violet-400 font-medium mb-3">${displayChords}</div>
+                    <div class="flex gap-1">${renderInstIcons(item.inst)}</div>
+                `;
+                container.appendChild(div);
+            });
+            
+            updateStats();
+        }
+
+        // Update stats
+        function updateStats() {
+            const totalBars = timeline.reduce((sum, s) => sum + s.bars, 0);
+            const seconds = (totalBars * 4 * 60) / songInfo.bpm;
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            
+            document.getElementById('statBars').textContent = totalBars;
+            document.getElementById('statTime').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+            document.getElementById('statCount').textContent = timeline.length;
+        }
+
+        // Edit functions
+        function editLibraryItem(id) {
+            editingLibraryId = id; editingTimelineIndex = null;
+            const item = library.find(s => s.id === id);
+            document.getElementById('segmentModalTitle').textContent = '编辑段落库';
+            document.getElementById('segName').value = item.name;
+            document.getElementById('segBars').value = item.bars;
+            document.getElementById('segType').value = item.type;
+            document.getElementById('segChords').value = item.chords;
+            document.getElementById('segNote').value = item.note || '';
+            // Ensure all instrument keys exist
+            tempInst = {};
+            instrumentList.forEach(inst => { tempInst[inst.key] = item.inst[inst.key] || 0; });
+            updateInstButtons();
+            document.getElementById('deleteSegBtn').classList.remove('hidden');
+            document.getElementById('segmentModal').classList.add('active');
+        }
+
+        function editTimelineItem(idx) {
+            editingLibraryId = null; editingTimelineIndex = idx;
+            const item = timeline[idx];
+            document.getElementById('segmentModalTitle').textContent = '编辑时间轴段落';
+            document.getElementById('segName').value = item.name;
+            document.getElementById('segBars').value = item.bars;
+            document.getElementById('segType').value = item.type;
+            document.getElementById('segChords').value = item.chords;
+            document.getElementById('segNote').value = item.note || '';
+            // Ensure all instrument keys exist
+            tempInst = {};
+            instrumentList.forEach(inst => { tempInst[inst.key] = item.inst[inst.key] || 0; });
+            updateInstButtons();
+            document.getElementById('deleteSegBtn').classList.add('hidden');
+            document.getElementById('segmentModal').classList.add('active');
+        }
+
+        function showAddToLibraryModal() {
+            editingLibraryId = null; editingTimelineIndex = null;
+            document.getElementById('segmentModalTitle').textContent = '新建段落';
+            document.getElementById('segName').value = '';
+            document.getElementById('segBars').value = 8;
+            document.getElementById('segType').value = 'verse';
+            document.getElementById('segChords').value = '';
+            document.getElementById('segNote').value = '';
+            // Initialize with default instruments
+            tempInst = {};
+            instrumentList.forEach(inst => { tempInst[inst.key] = 0; });
+            tempInst.vocalM = 1; tempInst.rhythm = 1; tempInst.bass = 1; tempInst.drum = 1;
+            updateInstButtons();
+            document.getElementById('deleteSegBtn').classList.add('hidden');
+            document.getElementById('segmentModal').classList.add('active');
+        }
+
+        function insertChord(chord) {
+            const input = document.getElementById('segChords');
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            input.value = input.value.substring(0, start) + chord + input.value.substring(end);
+            input.focus();
+            input.setSelectionRange(start + chord.length, start + chord.length);
+        }
+
+        function toggleInst(key) {
+            tempInst[key] = tempInst[key] ? 0 : 1;
+            updateInstButtons();
+        }
+
+        function updateInstButtons() {
+            renderInstrumentButtons();
+        }
+
+        function saveSegment() {
+            const data = {
+                name: document.getElementById('segName').value,
+                bars: parseInt(document.getElementById('segBars').value),
+                type: document.getElementById('segType').value,
+                chords: document.getElementById('segChords').value,
+                note: document.getElementById('segNote').value,
+                inst: { ...tempInst }
+            };
+            
+            if (editingLibraryId !== null) {
+                const idx = library.findIndex(s => s.id === editingLibraryId);
+                if (idx !== -1) library[idx] = { ...library[idx], ...data };
+                renderLibrary();
+            } else if (editingTimelineIndex !== null) {
+                timeline[editingTimelineIndex] = { ...timeline[editingTimelineIndex], ...data };
+                updateTimeline();
+            } else {
+                const newId = Math.max(...library.map(s => s.id), 0) + 1;
+                library.push({ id: newId, ...data });
+                renderLibrary();
+            }
+            closeSegmentModal();
+        }
+
+        function deleteSegment() {
+            if (editingLibraryId !== null && confirm('确定从段落库删除此段落？')) {
+                library = library.filter(s => s.id !== editingLibraryId);
+                renderLibrary();
+                closeSegmentModal();
+            }
+        }
+
+        function closeSegmentModal() {
+            document.getElementById('segmentModal').classList.remove('active');
+            editingLibraryId = null; editingTimelineIndex = null;
+        }
+
+        function removeTimelineItem(idx) { timeline.splice(idx, 1); updateTimeline(); }
+        function clearTimeline() { if (timeline.length && confirm('确定清空时间轴？')) { timeline = []; updateTimeline(); } }
+        function undo() { if (timeline.length) { timeline.pop(); updateTimeline(); } }
+
+        // Import
+        function showImportModal() { document.getElementById('importModal').classList.add('active'); document.getElementById('importText').value = ''; }
+        function closeImportModal() { document.getElementById('importModal').classList.remove('active'); }
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => { document.getElementById('importText').value = e.target.result; };
+            reader.readAsText(file);
+        }
+        function importFromText() {
+            const text = document.getElementById('importText').value.trim();
+            if (!text) { alert('请输入JSON数据'); return; }
+            try {
+                const data = JSON.parse(text);
+                if (data.song) { songInfo.title = data.song; document.getElementById('songTitle').value = data.song; }
+                if (data.artist) { songInfo.artist = data.artist; document.getElementById('songArtist').value = data.artist; }
+                
+                // Import key info (new format)
+                if (data.keyNote) {
+                    songInfo.keyNote = data.keyNote;
+                    songInfo.keyMode = data.keyMode || 'major';
+                    songInfo.keyScale = data.keyScale || null;
+                } else if (data.key) {
+                    // Legacy format support
+                    const keyMatch = data.key.match(/^([A-G][#b]?)(.*)$/);
+                    if (keyMatch) {
+                        songInfo.keyNote = keyMatch[1];
+                        songInfo.keyMode = keyMatch[2].includes('小') ? 'minor' : 'major';
+                        songInfo.keyScale = null;
+                    }
+                }
+                updateKeyDisplay();
+                
+                if (data.bpm) { songInfo.bpm = data.bpm; document.getElementById('songBpm').value = data.bpm; }
+                
+                // Import theme if present
+                if (data.theme) {
+                    currentTheme = data.theme;
+                    document.body.classList.toggle('light-theme', currentTheme === 'light');
+                    document.getElementById('themeIconDark').classList.toggle('hidden', currentTheme === 'light');
+                    document.getElementById('themeIconLight').classList.toggle('hidden', currentTheme === 'dark');
+                    localStorage.setItem('theme', currentTheme);
+                }
+                
+                // Import custom instruments if present
+                if (data.customInstruments && data.customInstruments.length) {
+                    customInstruments = data.customInstruments;
+                    instrumentList = [...instrumentList.filter(i => !i.key.startsWith('custom_')), ...customInstruments];
+                    localStorage.setItem('customInstruments', JSON.stringify(customInstruments));
+                }
+                
+                // Helper to normalize instrument object
+                const normalizeInst = (inst) => {
+                    const normalized = {};
+                    instrumentList.forEach(i => { normalized[i.key] = inst[i.key] || 0; });
+                    return normalized;
+                };
+                
+                if (data.library && data.library.length) {
+                    library = data.library.map((item, i) => ({ 
+                        id: i + 1, 
+                        name: item.name || '未命名', 
+                        type: item.type || 'verse', 
+                        bars: item.bars || 8, 
+                        chords: item.chords || '', 
+                        note: item.note || '', 
+                        inst: normalizeInst(item.inst || item.instruments || {}) 
+                    }));
+                }
+                const newSegs = data.segments.map(item => ({ 
+                    name: item.name || '未命名', 
+                    type: item.type || 'verse', 
+                    bars: item.bars || 8, 
+                    chords: item.chords || '', 
+                    note: item.note || '', 
+                    inst: normalizeInst(item.inst || item.instruments || {}), 
+                    uid: Date.now() + Math.random() 
+                }));
+                if (document.getElementById('importReplace').checked) timeline = newSegs;
+                else timeline = timeline.concat(newSegs);
+                renderLibrary(); updateTimeline(); closeImportModal();
+                alert(`导入成功！\n歌名: ${songInfo.title}\n段落数: ${timeline.length}`);
+            } catch (err) { alert('JSON格式错误: ' + err.message); }
+        }
+
+        // Export
+        function showExportModal() { if (!timeline.length) { alert('时间轴为空'); return; } document.getElementById('exportModal').classList.add('active'); }
+        function closeExportModal() { document.getElementById('exportModal').classList.remove('active'); }
+
+        async function exportPDF() {
+            closeExportModal();
+            const pdfContent = document.getElementById('pdfContent');
+            const totalBars = timeline.reduce((sum, s) => sum + s.bars, 0);
+            const seconds = (totalBars * 4 * 60) / songInfo.bpm;
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            
+            // Determine theme colors
+            const isDark = currentTheme === 'dark';
+            const bgColor = isDark ? '#1c1c24' : '#ffffff';
+            const cardBg = isDark ? '#13131a' : '#f5f5f8';
+            const textColor = isDark ? '#e4e4e7' : '#18181b';
+            const textMuted = isDark ? '#a1a1aa' : '#71717a';
+            const borderColor = isDark ? '#27272a' : '#e4e4e7';
+            
+            // Calculate widths based on bars - proportional sizing
+            const baseBarWidth = 35; // px per bar
+            const maxSegmentWidth = 550; // max width in px
+            const minSegmentWidth = 100; // min width in px
+            
+            // Create individual segment elements for better control
+            let segmentsHtml = '';
+            
+            timeline.forEach((item, idx) => {
+                const instList = [];
+                Object.entries(item.inst).forEach(([key, val]) => {
+                    if (val) {
+                        const inst = instrumentList.find(i => i.key === key);
+                        if (inst) instList.push(inst.short);
+                    }
+                });
+                
+                // Calculate width based on bars (proportional)
+                const calculatedWidth = item.bars * baseBarWidth;
+                const widthPx = Math.max(minSegmentWidth, Math.min(calculatedWidth, maxSegmentWidth));
+                const displayChords = convertToNoteNames(item.chords, songInfo);
+                
+                // Add each segment as a separate block with page break detection
+                segmentsHtml += `
+                    <div style="break-inside: avoid; margin-bottom: 15px;">
+                        <div style="display: flex; align-items: stretch;">
+                            <div style="width: 32px; min-width: 32px; display: flex; align-items: center; justify-content: center; background: ${cardBg}; border: 1px solid ${borderColor}; border-right: none; border-radius: 8px 0 0 8px; font-size: 12px; font-weight: bold; color: ${textMuted};">${idx + 1}</div>
+                            <div style="width: ${widthPx}px; padding: 12px 16px; border: 1px solid ${borderColor}; border-left: 4px solid ${typeColors[item.type]}; background: ${bgColor}; border-radius: 0 8px 8px 0;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <span style="font-weight: bold; font-size: 13px; color: ${textColor};">${item.name}</span>
+                                    <span style="font-size: 11px; color: ${textMuted};">${item.bars}小节</span>
+                                </div>
+                                <div style="font-family: 'Times New Roman', serif; font-style: italic; color: #8b5cf6; font-size: 14px; margin-bottom: 6px;">${displayChords}</div>
+                                <div style="font-size: 10px; color: ${textMuted};">乐器: ${instList.join(' ')}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            pdfContent.innerHTML = `
+                <div style="margin-bottom: 25px; padding: 12px 16px; background: ${cardBg}; border: 1px solid ${borderColor}; border-radius: 8px; display: flex; gap: 30px; font-size: 13px; color: ${textColor};">
+                    <div><strong>总小节:</strong> ${totalBars}</div>
+                    <div><strong>时长:</strong> ${mins}:${secs.toString().padStart(2, '0')}</div>
+                    <div><strong>段落:</strong> ${timeline.length}</div>
+                </div>
+                <div style="page-break-inside: avoid;">
+                    ${segmentsHtml}
+                </div>
+            `;
+            
+            document.getElementById('pdfTitle').textContent = songInfo.title;
+            const keyDisplay = songInfo.keyScale ? 
+                `${songInfo.keyNote} ${songInfo.keyScale.charAt(0).toUpperCase() + songInfo.keyScale.slice(1)}` :
+                `${songInfo.keyNote}${songInfo.keyMode === 'major' ? '大调' : '小调'}`;
+            document.getElementById('pdfSubtitle').textContent = `${songInfo.artist} | ${keyDisplay} | ${songInfo.bpm} BPM | 4/4拍`;
+            document.getElementById('pdfTime').textContent = new Date().toLocaleString('zh-CN');
+            
+            const preview = document.getElementById('pdfPreview');
+            preview.style.left = '0'; preview.style.position = 'absolute';
+            preview.style.background = isDark ? '#0a0a0f' : '#ffffff';
+            preview.style.color = textColor;
+            
+            try {
+                // Use html2canvas with scale 1 for better pagination
+                const canvas = await html2canvas(preview, { scale: 1.5, useCORS: true, backgroundColor: isDark ? '#0a0a0f' : '#ffffff' });
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                
+                const imgWidth = 210;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                
+                // Calculate how many pages needed
+                const pageHeight = 297; // A4 height in mm
+                let totalPages = Math.ceil(imgHeight / pageHeight);
+                
+                // Add each page separately
+                for (let i = 0; i < totalPages; i++) {
+                    if (i > 0) pdf.addPage();
+                    
+                    // Calculate position for this page
+                    const position = -i * pageHeight;
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                }
+                
+                pdf.save(`${songInfo.title.replace(/[《》]/g, '')}_乐谱编排.pdf`);
+            } catch (err) { alert('PDF导出失败: ' + err.message); }
+            
+            preview.style.left = '-9999px'; preview.style.position = 'fixed';
+        }
+
+        async function exportImage() {
+            closeExportModal();
+            // Same vertical layout as PDF but download as PNG
+            const pdfContent = document.getElementById('pdfContent');
+            const totalBars = timeline.reduce((sum, s) => sum + s.bars, 0);
+            const seconds = (totalBars * 4 * 60) / songInfo.bpm;
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            
+            // Determine theme colors
+            const isDark = currentTheme === 'dark';
+            const bgColor = isDark ? '#1c1c24' : '#ffffff';
+            const cardBg = isDark ? '#13131a' : '#f5f5f8';
+            const textColor = isDark ? '#e4e4e7' : '#18181b';
+            const textMuted = isDark ? '#a1a1aa' : '#71717a';
+            const borderColor = isDark ? '#27272a' : '#e4e4e7';
+            
+            // Calculate widths based on bars - proportional sizing
+            const baseBarWidth = 35; // px per bar
+            const maxSegmentWidth = 550; // max width in px
+            const minSegmentWidth = 100; // min width in px
+            
+            let segmentsHtml = '';
+            
+            timeline.forEach((item, idx) => {
+                const instList = [];
+                Object.entries(item.inst).forEach(([key, val]) => {
+                    if (val) {
+                        const inst = instrumentList.find(i => i.key === key);
+                        if (inst) instList.push(inst.short);
+                    }
+                });
+                
+                // Calculate width based on bars (proportional)
+                const calculatedWidth = item.bars * baseBarWidth;
+                const widthPx = Math.max(minSegmentWidth, Math.min(calculatedWidth, maxSegmentWidth));
+                const displayChords = convertToNoteNames(item.chords, songInfo);
+                
+                segmentsHtml += `
+                    <div style="display: flex; align-items: stretch; margin-bottom: 10px;">
+                        <div style="width: 32px; min-width: 32px; display: flex; align-items: center; justify-content: center; background: ${cardBg}; border: 1px solid ${borderColor}; border-right: none; border-radius: 8px 0 0 8px; font-size: 12px; font-weight: bold; color: ${textMuted};">${idx + 1}</div>
+                        <div style="width: ${widthPx}px; padding: 12px 16px; border: 1px solid ${borderColor}; border-left: 4px solid ${typeColors[item.type]}; background: ${bgColor}; border-radius: 0 8px 8px 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <span style="font-weight: bold; font-size: 13px; color: ${textColor};">${item.name}</span>
+                                <span style="font-size: 11px; color: ${textMuted};">${item.bars}小节</span>
+                            </div>
+                            <div style="font-family: 'Times New Roman', serif; font-style: italic; color: #8b5cf6; font-size: 14px; margin-bottom: 6px;">${displayChords}</div>
+                            <div style="font-size: 10px; color: ${textMuted};">乐器: ${instList.join(' ')}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            pdfContent.innerHTML = `
+                <div style="margin-bottom: 20px; padding: 12px 16px; background: ${cardBg}; border: 1px solid ${borderColor}; border-radius: 8px; display: flex; gap: 30px; font-size: 13px; color: ${textColor};">
+                    <div><strong>总小节:</strong> ${totalBars}</div>
+                    <div><strong>时长:</strong> ${mins}:${secs.toString().padStart(2, '0')}</div>
+                    <div><strong>段落:</strong> ${timeline.length}</div>
+                </div>
+                ${segmentsHtml}
+            `;
+            document.getElementById('pdfTitle').textContent = songInfo.title;
+            const keyDisplay = songInfo.keyScale ? 
+                `${songInfo.keyNote} ${songInfo.keyScale.charAt(0).toUpperCase() + songInfo.keyScale.slice(1)}` :
+                `${songInfo.keyNote}${songInfo.keyMode === 'major' ? '大调' : '小调'}`;
+            document.getElementById('pdfSubtitle').textContent = `${songInfo.artist} | ${keyDisplay} | ${songInfo.bpm} BPM | 4/4拍`;
+            document.getElementById('pdfTime').textContent = new Date().toLocaleString('zh-CN');
+            
+            const preview = document.getElementById('pdfPreview');
+            preview.style.left = '0'; preview.style.position = 'absolute';
+            preview.style.background = isDark ? '#0a0a0f' : '#ffffff';
+            preview.style.color = textColor;
+            try {
+                const canvas = await html2canvas(preview, { scale: 2, useCORS: true, backgroundColor: isDark ? '#0a0a0f' : '#ffffff' });
+                const link = document.createElement('a');
+                link.download = `${songInfo.title.replace(/[《》]/g, '')}_乐谱编排.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch (err) { alert('图片导出失败: ' + err.message); }
+            preview.style.left = '-9999px'; preview.style.position = 'fixed';
+        }
+
+        function exportJSON() {
+            closeExportModal();
+            const totalBars = timeline.reduce((sum, s) => sum + s.bars, 0);
+            const seconds = (totalBars * 4 * 60) / songInfo.bpm;
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            const keyDisplay = songInfo.keyScale ? 
+                `${songInfo.keyNote} ${songInfo.keyScale.charAt(0).toUpperCase() + songInfo.keyScale.slice(1)}` :
+                `${songInfo.keyNote}${songInfo.keyMode === 'major' ? '大调' : '小调'}`;
+            const data = { 
+                song: songInfo.title, 
+                artist: songInfo.artist, 
+                key: keyDisplay,
+                keyNote: songInfo.keyNote,
+                keyMode: songInfo.keyMode,
+                keyScale: songInfo.keyScale,
+                bpm: songInfo.bpm, 
+                totalBars, 
+                duration: `${mins}:${secs.toString().padStart(2, '0')}`, 
+                segments: timeline, 
+                library,
+                customInstruments,
+                theme: currentTheme
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${songInfo.title.replace(/[《》]/g, '')}_乐谱编排.json`;
+            a.click();
+        }
+
+        // Init
+        init();
+    </script>
+</body>
+</html>

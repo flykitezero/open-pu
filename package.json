@@ -1,0 +1,33 @@
+{
+  "name": "score-arranger",
+  "version": "1.0.0",
+  "description": "一个现代化的、可视化的歌曲乐谱编排工具",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8080",
+    "serve": "npx serve .",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/score-arranger.git"
+  },
+  "keywords": [
+    "music",
+    "score",
+    "arranger",
+    "乐谱",
+    "编曲",
+    "band",
+    "chords",
+    "visualization"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/score-arranger/issues"
+  },
+  "homepage": "https://yourusername.github.io/score-arranger/",
+  "devDependencies": {},
+  "dependencies": {}
+}
