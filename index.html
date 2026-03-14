@@ -606,10 +606,10 @@
         }
         .switch-toggle {
             position: relative;
-            width: 48px;
-            height: 26px;
+            width: 40px;
+            height: 20px;
             background: linear-gradient(145deg, var(--border-color) 0%, rgba(0,0,0,0.1) 100%);
-            border-radius: 13px;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
@@ -621,16 +621,16 @@
         .switch-toggle::after {
             content: '';
             position: absolute;
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%);
             border-radius: 50%;
-            top: 3px;
-            left: 3px;
+            top: 2px;
+            left: 2px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        .switch-toggle.active::after { left: 25px; }
+        .switch-toggle.active::after { left: 22px; }
         .tutorial-overlay {
             position: fixed;
             inset: 0;
@@ -1799,7 +1799,7 @@
             },
             { 
                 title: '级数/音名切换', 
-                text: '点击这个开关，可以在罗马级数（Ⅰ-Ⅴ-Ⅵ-Ⅳ）和实际音名（G-D-Em-C）之间切换显示。', 
+                text: '点击这个小开关，可以在罗马级数（Ⅰ-Ⅴ-Ⅵ-Ⅳ）和实际音名（G-D-Em-C）之间切换显示。', 
                 icon: 'fa-exchange-alt',
                 element: 'noteToggle' 
             },

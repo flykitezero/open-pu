@@ -3,23 +3,30 @@
 一个现代化的、可视化的歌曲乐谱编排工具，专为乐队和音乐创作者设计。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/score-arranger?style=social)](https://github.com/yourusername/score-arranger)
 
-![Preview](https://via.placeholder.com/800x400/13131a/8b5cf6?text=Score+Arranger+Preview)
+![Preview](https://via.placeholder.com/800x400/13131a/8b5cf6?text=open-pu+Preview)
 
 ## ✨ 特性
 
 - 🎼 **可视化编排** - 拖拽式段落组合，直观构建歌曲结构
 - 🎹 **完整调性支持** - 12音名 + 大小调 + 中古调式 + Blues音阶
 - 🎸 **丰富乐器配置** - 25+种乐器，支持搜索和自定义添加
-- 🌓 **双主题切换** - 深色/浅色主题，导出也支持主题切换
+- 🎵 **节拍器功能** - 内置节拍器，帮助你按照设定的速度练习或创作
+- 🔢 **级数/音名切换** - 可在罗马级数（Ⅰ-Ⅴ-Ⅵ-Ⅳ）和实际音名（G-D-Em-C）之间切换
 - 📊 **智能导出** - PDF/PNG/JSON 三种格式，段落长度按小节数比例显示
 - 🔄 **数据导入导出** - 保存和恢复编排数据
 - 📱 **响应式设计** - 现代化的 UI 设计，流畅的交互体验
+- 🎨 **深色主题** - 专业的深色界面，适合长时间使用
 
 ## 🚀 在线演示
 
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Visit%20Demo-blue?style=for-the-badge&logo=github)](https://gdfgr2wag32n6.ok.kimi.link)
+
 **[👉 点击体验在线演示](https://gdfgr2wag32n6.ok.kimi.link)**
+
+### 网页演示截图
+
+![open-pu Demo](demo-screenshot.png)
 
 ## 📦 快速开始
 
@@ -33,10 +40,10 @@
 
 ```bash
 # 克隆项目
-git clone https://github.com/yourusername/score-arranger.git
+git clone https://github.com/yourusername/open-pu.git
 
 # 进入目录
-cd score-arranger
+cd open-pu
 
 # 启动本地服务器（任选一种）
 # Python 3
@@ -60,7 +67,11 @@ npx serve .
 - 中古调式：Dorian, Phrygian, Lydian, Mixolydian, Locrian
 - Blues 音阶
 
-### 2. 段落库
+### 2. 节拍器
+
+点击 BPM 旁边的节拍器图标可以启动/停止节拍器，帮助你按照设定的速度练习或创作。
+
+### 3. 段落库
 
 左侧是段落库，包含预设的段落模板：
 - 前奏 (Intro)
@@ -68,52 +79,47 @@ npx serve .
 - 副歌 (Chorus)
 - 间奏 (Interlude)
 - 尾奏 (Outro)
+- Solo
+- 其他 (Other)
 
 **操作**：
 - 拖拽到右侧时间轴
-- 点击 ✎ 编辑段落
+- 鼠标悬停在段落卡片上显示编辑按钮
 - 点击 + 添加自定义段落
 
-### 3. 时间轴编排
+### 4. 时间轴编排
 
 右侧是时间轴，按顺序排列你的歌曲结构。
 
 **功能**：
 - 拖拽段落到这里
-- 调整小节宽度滑块
 - 查看总小节数、预估时长、段落数
 
-### 4. 编辑段落
+### 5. 编辑段落
 
-点击段落上的 ✎ 按钮编辑：
+点击段落上的编辑按钮编辑：
 
 - **段落名称** - 自定义段落名称
 - **小节数** - 1-64 小节
-- **段落类型** - 前奏/主歌/副歌/间奏/尾奏
-- **和弦进行** - 支持罗马级数（如 Ⅰ-Ⅴ-Ⅵm-Ⅳ）
+- **段落类型** - 前奏/主歌/副歌/间奏/尾奏/Solo/其他
+- **和弦进行** - 支持罗马级数（如 Ⅰ-Ⅴ-Ⅵ-Ⅳ）
 - **乐器配置** - 25+种乐器，支持搜索和自定义
 
-### 5. 级数/音名切换
+### 6. 级数/音名切换
 
-点击顶部的切换开关，在和弦级数和实际音名之间切换。
-
-### 6. 主题切换
-
-点击顶部的 🌞/🌙 图标切换深色/浅色主题。
+点击顶部的小开关，可以在罗马级数（Ⅰ-Ⅴ-Ⅵ-Ⅳ）和实际音名（G-D-Em-C）之间切换显示。
 
 ### 7. 导出乐谱
 
-点击「导出」按钮，支持三种格式：
+点击「导出/导入」按钮，支持三种格式：
 
 - **PDF** - 适合打印和分享
 - **PNG** - 高清乐谱图片
 - **JSON** - 保存编排数据（可导入恢复）
 
-导出会根据当前主题使用对应的颜色方案。
-
 ### 8. 导入数据
 
-点击导入图标，可以：
+点击「导出/导入」按钮，可以：
 - 上传 JSON 文件
 - 粘贴 JSON 数据
 - 选择替换或追加到当前编排
@@ -151,7 +157,7 @@ npx serve .
 
 - **HTML5** - 语义化结构
 - **CSS3** - CSS Variables, Flexbox, Grid, Animations
-- **JavaScript** - ES6+, Drag & Drop API
+- **JavaScript** - ES6+, Drag & Drop API, Web Audio API
 - **Tailwind CSS** - 实用优先的 CSS 框架
 - **html2canvas** - 截图导出
 - **jsPDF** - PDF 生成
@@ -159,15 +165,16 @@ npx serve .
 ## 📁 项目结构
 
 ```
-score-arranger/
+open-pu/
 ├── index.html          # 主页面
 ├── README.md           # 项目说明
 ├── LICENSE             # MIT 许可证
 ├── .gitignore          # Git 忽略文件
-└── assets/             # 资源文件（可选）
-    ├── css/
-    ├── js/
-    └── images/
+├── CHANGELOG.md        # 变更日志
+├── CONTRIBUTING.md     # 贡献指南
+└── .github/
+    └── workflows/
+        └── deploy.yml  # 部署配置
 ```
 
 ## 🤝 贡献指南
@@ -189,13 +196,6 @@ score-arranger/
 - [Tailwind CSS](https://tailwindcss.com/) - 优秀的 CSS 框架
 - [html2canvas](https://html2canvas.hertzen.com/) - 截图导出库
 - [jsPDF](https://github.com/parallax/jsPDF) - PDF 生成库
-
-## 📮 联系方式
-
-如有问题或建议，欢迎通过以下方式联系：
-
-- 提交 [Issue](https://github.com/yourusername/score-arranger/issues)
-- 发送邮件到 your.email@example.com
 
 ---
 
