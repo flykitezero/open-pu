@@ -8,6 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
         
@@ -580,13 +581,6 @@
                         </div>
                         <span class="font-semibold text-zinc-200">时间轴编排</span>
                     </div>
-                    </span>
-                    <div class="flex items-center gap-4 text-sm">
-                        <div class="flex items-center gap-2">
-                            <span class="text-zinc-500">小节宽度</span>
-                            <input type="range" id="barWidth" min="40" max="120" value="70" class="w-24 accent-violet-500" oninput="updateTimeline()">
-                        </div>
-                    </div>
                 </div>
                 
                 <!-- Timeline -->
@@ -642,25 +636,25 @@
     <!-- Segment Modal -->
     <div id="segmentModal" class="modal-overlay" onclick="if(event.target===this)closeSegmentModal()">
         <div class="modal-content">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-bold text-white" id="segmentModalTitle">编辑段落</h3>
-                <button onclick="closeSegmentModal()" class="text-zinc-500 hover:text-white text-xl transition">×</button>
+            <div class="modal-header">
+                <h3 class="modal-title" id="segmentModalTitle">编辑段落</h3>
+                <button onclick="closeSegmentModal()" class="modal-close">×</button>
             </div>
             
             <div class="space-y-4">
-                <div>
-                    <label class="block text-sm text-zinc-400 mb-1">段落名称</label>
-                    <input type="text" id="segName" placeholder="如：前奏 INTRO">
+                <div class="form-group">
+                    <label class="form-label">段落名称</label>
+                    <input type="text" id="segName" placeholder="如：前奏 INTRO" class="form-input">
                 </div>
                 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm text-zinc-400 mb-1">小节数</label>
-                        <input type="number" id="segBars" min="1" max="64" value="8">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">小节数</label>
+                        <input type="number" id="segBars" min="1" max="64" value="8" class="form-input">
                     </div>
-                    <div>
-                        <label class="block text-sm text-zinc-400 mb-1">段落类型</label>
-                        <select id="segType">
+                    <div class="form-group">
+                        <label class="form-label">段落类型</label>
+                        <select id="segType" class="form-input">
                             <option value="intro">前奏</option>
                             <option value="verse">主歌</option>
                             <option value="chorus">副歌</option>
@@ -670,44 +664,44 @@
                     </div>
                 </div>
                 
-                <div>
-                    <label class="block text-sm text-zinc-400 mb-1">和弦进行（级数）</label>
-                    <input type="text" id="segChords" placeholder="如：Ⅰ-Ⅴ-Ⅵ-Ⅳ" class="chord-display text-lg">
-                    <div class="flex gap-2 mt-2 flex-wrap">
-                        <button onclick="insertChord('Ⅰ')" class="px-3 py-1.5 bg-zinc-800 rounded-lg text-sm hover:bg-violet-600 hover:text-white transition">Ⅰ</button>
-                        <button onclick="insertChord('Ⅱ')" class="px-3 py-1.5 bg-zinc-800 rounded-lg text-sm hover:bg-violet-600 hover:text-white transition">Ⅱ</button>
-                        <button onclick="insertChord('Ⅲ')" class="px-3 py-1.5 bg-zinc-800 rounded-lg text-sm hover:bg-violet-600 hover:text-white transition">Ⅲ</button>
-                        <button onclick="insertChord('Ⅳ')" class="px-3 py-1.5 bg-zinc-800 rounded-lg text-sm hover:bg-violet-600 hover:text-white transition">Ⅳ</button>
-                        <button onclick="insertChord('Ⅴ')" class="px-3 py-1.5 bg-zinc-800 rounded-lg text-sm hover:bg-violet-600 hover:text-white transition">Ⅴ</button>
-                        <button onclick="insertChord('Ⅵ')" class="px-3 py-1.5 bg-zinc-800 rounded-lg text-sm hover:bg-violet-600 hover:text-white transition">Ⅵ</button>
-                        <button onclick="insertChord('Ⅶ°')" class="px-3 py-1.5 bg-zinc-800 rounded-lg text-sm hover:bg-violet-600 hover:text-white transition">Ⅶ°</button>
-                        <button onclick="insertChord(' - ')" class="px-3 py-1.5 bg-zinc-800 rounded-lg text-sm hover:bg-zinc-700 transition">-</button>
+                <div class="form-group">
+                    <label class="form-label">和弦进行（级数）</label>
+                    <input type="text" id="segChords" placeholder="如：Ⅰ-Ⅴ-Ⅵ-Ⅳ" class="form-input" style="font-style: italic;">
+                    <div class="chord-buttons">
+                        <button onclick="insertChord('Ⅰ')" class="chord-button">Ⅰ</button>
+                        <button onclick="insertChord('Ⅱ')" class="chord-button">Ⅱ</button>
+                        <button onclick="insertChord('Ⅲ')" class="chord-button">Ⅲ</button>
+                        <button onclick="insertChord('Ⅳ')" class="chord-button">Ⅳ</button>
+                        <button onclick="insertChord('Ⅴ')" class="chord-button">Ⅴ</button>
+                        <button onclick="insertChord('Ⅵ')" class="chord-button">Ⅵ</button>
+                        <button onclick="insertChord('Ⅶ°')" class="chord-button">Ⅶ°</button>
+                        <button onclick="insertChord(' - ')" class="chord-button">-</button>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm text-zinc-400 mb-1">备注（可选）</label>
-                    <input type="text" id="segNote" placeholder="如：高潮、Solo等">
+                <div class="form-group">
+                    <label class="form-label">备注（可选）</label>
+                    <input type="text" id="segNote" placeholder="如：高潮、Solo等" class="form-input">
                 </div>
                 
-                <div>
-                    <label class="block text-sm text-zinc-400 mb-2">乐器配置</label>
-                    <input type="text" id="instSearch" placeholder="搜索乐器..." class="text-sm mb-3" oninput="filterInstruments()">
-                    <div id="instrumentList" class="flex flex-wrap gap-2 max-h-40 overflow-y-auto scrollbar">
+                <div class="form-group">
+                    <label class="form-label">乐器配置</label>
+                    <input type="text" id="instSearch" placeholder="搜索乐器..." class="form-input" oninput="filterInstruments()">
+                    <div id="instrumentList" class="instrument-list">
                         <!-- Instruments will be rendered here -->
                     </div>
-                    <div class="mt-3 pt-3 border-t border-zinc-700">
-                        <button onclick="showAddInstrumentModal()" class="text-xs text-violet-400 hover:text-violet-300 transition flex items-center gap-1">
+                    <div class="mt-3 pt-3 border-t border-gray-200">
+                        <button onclick="showAddInstrumentModal()" class="text-sm text-blue-500 hover:underline flex items-center gap-1">
                             <span>+</span> 添加自定义乐器
                         </button>
                     </div>
                 </div>
             </div>
             
-            <div class="flex gap-3 mt-6">
-                <button onclick="saveSegment()" class="flex-1 btn-primary py-2.5 font-medium">保存</button>
-                <button onclick="closeSegmentModal()" class="px-5 py-2.5 btn-secondary">取消</button>
-                <button id="deleteSegBtn" onclick="deleteSegment()" class="px-5 py-2.5 btn-danger hidden">删除</button>
+            <div class="modal-actions">
+                <button id="deleteSegBtn" onclick="deleteSegment()" class="danger-button hidden">删除</button>
+                <button onclick="closeSegmentModal()" class="secondary-button">取消</button>
+                <button onclick="saveSegment()" class="primary-button">保存</button>
             </div>
         </div>
     </div>
@@ -715,72 +709,74 @@
     <!-- Export Modal -->
     <div id="exportModal" class="modal-overlay" onclick="if(event.target===this)closeExportModal()">
         <div class="modal-content" style="width: 400px;">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-bold text-white">导出乐谱</h3>
-                <button onclick="closeExportModal()" class="text-zinc-500 hover:text-white text-xl transition">×</button>
+            <div class="modal-header">
+                <h3 class="modal-title">导出乐谱</h3>
+                <button onclick="closeExportModal()" class="modal-close">×</button>
             </div>
             <div class="space-y-3">
-                <button onclick="exportPDF()" class="w-full p-4 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-xl flex items-center gap-4 transition group">
-                    <div class="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center text-white text-xl font-bold group-hover:scale-110 transition">PDF</div>
+                <button onclick="exportPDF()" class="w-full p-4 border border-gray-200 rounded-lg flex items-center gap-4 transition hover:bg-gray-50">
+                    <div class="w-12 h-12 bg-red-500 rounded-md flex items-center justify-center text-white text-xl font-bold">PDF</div>
                     <div class="text-left">
-                        <div class="font-semibold text-white">导出为 PDF</div>
-                        <div class="text-sm text-zinc-400">适合打印和分享</div>
+                        <div class="font-semibold">导出为 PDF</div>
+                        <div class="text-sm">适合打印和分享</div>
                     </div>
                 </button>
-                <button onclick="exportImage()" class="w-full p-4 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 rounded-xl flex items-center gap-4 transition group">
-                    <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center text-white text-xl font-bold group-hover:scale-110 transition">PNG</div>
+                <button onclick="exportImage()" class="w-full p-4 border border-gray-200 rounded-lg flex items-center gap-4 transition hover:bg-gray-50">
+                    <div class="w-12 h-12 bg-blue-500 rounded-md flex items-center justify-center text-white text-xl font-bold">PNG</div>
                     <div class="text-left">
-                        <div class="font-semibold text-white">导出为图片</div>
-                        <div class="text-sm text-zinc-400">高清乐谱图片</div>
+                        <div class="font-semibold">导出为图片</div>
+                        <div class="text-sm">高清乐谱图片</div>
                     </div>
                 </button>
-                <button onclick="exportJSON()" class="w-full p-4 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 rounded-xl flex items-center gap-4 transition group">
-                    <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center text-white text-xl font-bold group-hover:scale-110 transition">JSON</div>
+                <button onclick="exportJSON()" class="w-full p-4 border border-gray-200 rounded-lg flex items-center gap-4 transition hover:bg-gray-50">
+                    <div class="w-12 h-12 bg-purple-500 rounded-md flex items-center justify-center text-white text-xl font-bold">JSON</div>
                     <div class="text-left">
-                        <div class="font-semibold text-white">导出为 JSON</div>
-                        <div class="text-sm text-zinc-400">保存编排数据</div>
+                        <div class="font-semibold">导出为 JSON</div>
+                        <div class="text-sm">保存编排数据</div>
                     </div>
                 </button>
             </div>
-            <button onclick="closeExportModal()" class="mt-4 w-full py-3 btn-secondary">取消</button>
+            <div class="modal-actions" style="justify-content: center;">
+                <button onclick="closeExportModal()" class="secondary-button" style="flex: 1;">取消</button>
+            </div>
         </div>
     </div>
 
     <!-- Add Instrument Modal -->
     <div id="addInstrumentModal" class="modal-overlay" onclick="if(event.target===this)closeAddInstrumentModal()">
         <div class="modal-content" style="width: 400px;">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-bold text-white">添加自定义乐器</h3>
-                <button onclick="closeAddInstrumentModal()" class="text-zinc-500 hover:text-white text-xl transition">×</button>
+            <div class="modal-header">
+                <h3 class="modal-title">添加自定义乐器</h3>
+                <button onclick="closeAddInstrumentModal()" class="modal-close">×</button>
             </div>
             <div class="space-y-4">
-                <div>
-                    <label class="block text-sm text-zinc-400 mb-1">乐器名称</label>
-                    <input type="text" id="customInstName" placeholder="如：萨克斯">
+                <div class="form-group">
+                    <label class="form-label">乐器名称</label>
+                    <input type="text" id="customInstName" placeholder="如：萨克斯" class="form-input">
                 </div>
-                <div>
-                    <label class="block text-sm text-zinc-400 mb-1">简称（1-2字）</label>
-                    <input type="text" id="customInstShort" placeholder="如：萨" maxlength="2">
+                <div class="form-group">
+                    <label class="form-label">简称（1-2字）</label>
+                    <input type="text" id="customInstShort" placeholder="如：萨" maxlength="2" class="form-input">
                 </div>
-                <div>
-                    <label class="block text-sm text-zinc-400 mb-1">颜色</label>
+                <div class="form-group">
+                    <label class="form-label">颜色</label>
                     <div class="flex gap-2 flex-wrap">
-                        <button onclick="selectInstColor('#60a5fa')" class="inst-color-btn w-8 h-8 rounded-lg bg-blue-400 hover:scale-110 transition" data-color="#60a5fa"></button>
-                        <button onclick="selectInstColor('#f472b6')" class="inst-color-btn w-8 h-8 rounded-lg bg-pink-400 hover:scale-110 transition" data-color="#f472b6"></button>
-                        <button onclick="selectInstColor('#a78bfa')" class="inst-color-btn w-8 h-8 rounded-lg bg-purple-400 hover:scale-110 transition" data-color="#a78bfa"></button>
-                        <button onclick="selectInstColor('#fb923c')" class="inst-color-btn w-8 h-8 rounded-lg bg-orange-400 hover:scale-110 transition" data-color="#fb923c"></button>
-                        <button onclick="selectInstColor('#4ade80')" class="inst-color-btn w-8 h-8 rounded-lg bg-green-400 hover:scale-110 transition" data-color="#4ade80"></button>
-                        <button onclick="selectInstColor('#f87171')" class="inst-color-btn w-8 h-8 rounded-lg bg-red-400 hover:scale-110 transition" data-color="#f87171"></button>
-                        <button onclick="selectInstColor('#22d3ee')" class="inst-color-btn w-8 h-8 rounded-lg bg-cyan-400 hover:scale-110 transition" data-color="#22d3ee"></button>
-                        <button onclick="selectInstColor('#fbbf24')" class="inst-color-btn w-8 h-8 rounded-lg bg-amber-400 hover:scale-110 transition" data-color="#fbbf24"></button>
-                        <button onclick="selectInstColor('#a3e635')" class="inst-color-btn w-8 h-8 rounded-lg bg-lime-400 hover:scale-110 transition" data-color="#a3e635"></button>
-                        <button onclick="selectInstColor('#c084fc')" class="inst-color-btn w-8 h-8 rounded-lg bg-fuchsia-400 hover:scale-110 transition" data-color="#c084fc"></button>
+                        <button onclick="selectInstColor('#60a5fa')" class="w-8 h-8 rounded-radius-sm bg-blue-400 hover:scale-110 transition" data-color="#60a5fa"></button>
+                        <button onclick="selectInstColor('#f472b6')" class="w-8 h-8 rounded-radius-sm bg-pink-400 hover:scale-110 transition" data-color="#f472b6"></button>
+                        <button onclick="selectInstColor('#a78bfa')" class="w-8 h-8 rounded-radius-sm bg-purple-400 hover:scale-110 transition" data-color="#a78bfa"></button>
+                        <button onclick="selectInstColor('#fb923c')" class="w-8 h-8 rounded-radius-sm bg-orange-400 hover:scale-110 transition" data-color="#fb923c"></button>
+                        <button onclick="selectInstColor('#4ade80')" class="w-8 h-8 rounded-radius-sm bg-green-400 hover:scale-110 transition" data-color="#4ade80"></button>
+                        <button onclick="selectInstColor('#f87171')" class="w-8 h-8 rounded-radius-sm bg-red-400 hover:scale-110 transition" data-color="#f87171"></button>
+                        <button onclick="selectInstColor('#22d3ee')" class="w-8 h-8 rounded-radius-sm bg-cyan-400 hover:scale-110 transition" data-color="#22d3ee"></button>
+                        <button onclick="selectInstColor('#fbbf24')" class="w-8 h-8 rounded-radius-sm bg-amber-400 hover:scale-110 transition" data-color="#fbbf24"></button>
+                        <button onclick="selectInstColor('#a3e635')" class="w-8 h-8 rounded-radius-sm bg-lime-400 hover:scale-110 transition" data-color="#a3e635"></button>
+                        <button onclick="selectInstColor('#c084fc')" class="w-8 h-8 rounded-radius-sm bg-fuchsia-400 hover:scale-110 transition" data-color="#c084fc"></button>
                     </div>
                 </div>
             </div>
-            <div class="flex gap-3 mt-6">
-                <button onclick="saveCustomInstrument()" class="flex-1 btn-primary py-2.5 font-medium">添加</button>
-                <button onclick="closeAddInstrumentModal()" class="px-5 py-2.5 btn-secondary">取消</button>
+            <div class="modal-actions">
+                <button onclick="closeAddInstrumentModal()" class="secondary-button">取消</button>
+                <button onclick="saveCustomInstrument()" class="primary-button">添加</button>
             </div>
         </div>
     </div>
@@ -788,64 +784,63 @@
     <!-- Import Modal -->
     <div id="importModal" class="modal-overlay" onclick="if(event.target===this)closeImportModal()">
         <div class="modal-content" style="width: 450px;">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-bold text-white">导入乐谱</h3>
-                <button onclick="closeImportModal()" class="text-zinc-500 hover:text-white text-xl transition">×</button>
+            <div class="modal-header">
+                <h3 class="modal-title">导入乐谱</h3>
+                <button onclick="closeImportModal()" class="modal-close">×</button>
             </div>
             
             <div class="space-y-4">
-                <div class="p-6 bg-zinc-800/50 rounded-xl border-2 border-dashed border-zinc-600 text-center hover:border-violet-500/50 transition cursor-pointer" onclick="document.getElementById('importFile').click()">
+                <div class="p-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 text-center hover:border-blue-500 transition cursor-pointer" onclick="document.getElementById('importFile').click()">
                     <div class="text-4xl mb-3">📁</div>
-                    <p class="text-zinc-400 mb-2">点击选择 JSON 文件</p>
-                    <p class="text-xs text-zinc-500">或拖拽文件到此处</p>
+                    <p class="text-gray-600 mb-2">点击选择 JSON 文件</p>
+                    <p class="text-xs text-gray-500">或拖拽文件到此处</p>
                     <input type="file" id="importFile" accept=".json" class="hidden" onchange="handleFileSelect(event)">
                 </div>
                 
                 <div class="relative">
                     <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-zinc-700"></div>
+                        <div class="w-full border-t border-gray-200"></div>
                     </div>
                     <div class="relative flex justify-center">
-                        <span class="px-2 bg-[#13131a] text-zinc-500 text-sm">或</span>
+                        <span class="px-2 bg-white text-gray-500 text-sm">或</span>
                     </div>
                 </div>
                 
-                <div>
-                    <label class="block text-sm text-zinc-400 mb-2">粘贴 JSON 数据</label>
-                    <textarea id="importText" rows="5" placeholder='{"song": "...", "segments": [...]}' class="text-sm font-mono"></textarea>
+                <div class="form-group">
+                    <label class="form-label">粘贴 JSON 数据</label>
+                    <textarea id="importText" rows="5" placeholder='{"song": "...", "segments": [...]}' class="form-input font-mono text-sm"></textarea>
                 </div>
                 
-                <div class="flex items-center gap-2 p-3 bg-zinc-800/30 rounded-lg">
-                    <input type="checkbox" id="importReplace" class="w-4 h-4 accent-violet-500" checked>
-                    <label for="importReplace" class="text-sm text-zinc-400">替换当前编排（取消则追加）</label>
+                <div class="flex items-center gap-2 p-3 bg-bg-tertiary rounded-radius-sm">
+                    <input type="checkbox" id="importReplace" class="w-4 h-4 accent-accent-blue" checked>
+                    <label for="importReplace" class="text-sm text-text-secondary">替换当前编排（取消则追加）</label>
                 </div>
             </div>
             
-            <div class="flex gap-3 mt-6">
-                <button onclick="importFromText()" class="flex-1 btn-primary py-2.5 font-medium">导入</button>
-                <button onclick="closeImportModal()" class="px-5 py-2.5 btn-secondary">取消</button>
+            <div class="modal-actions">
+                <button onclick="closeImportModal()" class="secondary-button">取消</button>
+                <button onclick="importFromText()" class="primary-button">导入</button>
             </div>
         </div>
     </div>
 
     <!-- Tutorial Overlay -->
-    <div id="tutorialOverlay" class="tutorial-overlay">
-        <div class="tutorial-highlight" id="tutorialHighlight"></div>
-        <div class="tutorial-step" id="tutorialStep">
-            <h4 class="font-bold text-white mb-2" id="tutorialTitle">欢迎使用乐谱编排器</h4>
-            <p class="text-sm text-zinc-400 mb-4" id="tutorialText">这是一个快速上手指南</p>
+    <div id="tutorialOverlay" class="modal-overlay">
+        <div class="tutorial-step" style="position: absolute; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 20px; max-width: 300px; box-shadow: var(--shadow-lg);" id="tutorialStep">
+            <h4 class="font-semibold text-text-primary mb-2" id="tutorialTitle">欢迎使用乐谱编排器</h4>
+            <p class="text-sm text-text-secondary mb-4" id="tutorialText">这是一个快速上手指南</p>
             <div class="flex justify-between items-center">
-                <span class="text-xs text-zinc-500" id="tutorialProgress">1/6</span>
+                <span class="text-xs text-text-muted" id="tutorialProgress">1/6</span>
                 <div class="flex gap-2">
-                    <button onclick="skipTutorial()" class="px-3 py-1.5 text-sm text-zinc-500 hover:text-white transition">跳过</button>
-                    <button onclick="nextTutorial()" class="px-4 py-1.5 text-sm bg-violet-600 text-white rounded-lg hover:bg-violet-500 transition">下一步</button>
+                    <button onclick="skipTutorial()" class="px-3 py-1.5 text-sm text-text-muted hover:text-text-primary transition">跳过</button>
+                    <button onclick="nextTutorial()" class="px-4 py-1.5 text-sm bg-accent-blue text-white rounded-radius-sm hover:bg-accent-blue/90 transition">下一步</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Help Button -->
-    <div class="help-btn" onclick="startTutorial()" title="查看教程">?</div>
+    <div class="help-button" onclick="startTutorial()" title="查看教程">?</div>
 
     <!-- PDF Preview Container (hidden) -->
     <div id="pdfPreview">
@@ -918,31 +913,31 @@
         
         // Comprehensive instrument list
         let instrumentList = [
-            { key: 'vocalM', name: '男主唱', short: '男', color: '#60a5fa', category: 'vocal' },
-            { key: 'vocalF', name: '女主唱', short: '女', color: '#f472b6', category: 'vocal' },
-            { key: 'vocalBG', name: '和声', short: '和', color: '#c084fc', category: 'vocal' },
-            { key: 'lead', name: '主音吉他', short: '主', color: '#a78bfa', category: 'guitar' },
-            { key: 'rhythm', name: '节奏吉他', short: '节', color: '#fb923c', category: 'guitar' },
-            { key: 'acoustic', name: '木吉他', short: '木', color: '#d4a574', category: 'guitar' },
-            { key: 'bass', name: '贝斯', short: '贝', color: '#4ade80', category: 'bass' },
-            { key: 'doubleBass', name: '低音提琴', short: '低', color: '#84cc16', category: 'bass' },
-            { key: 'drum', name: '鼓', short: '鼓', color: '#f87171', category: 'drums' },
-            { key: 'percussion', name: '打击乐', short: '击', color: '#fbbf24', category: 'drums' },
-            { key: 'keyboard', name: '键盘', short: '键', color: '#22d3ee', category: 'keys' },
-            { key: 'piano', name: '钢琴', short: '钢', color: '#38bdf8', category: 'keys' },
-            { key: 'synth', name: '合成器', short: '合', color: '#818cf8', category: 'keys' },
-            { key: 'organ', name: '管风琴', short: '管', color: '#a78bfa', category: 'keys' },
-            { key: 'strings', name: '弦乐组', short: '弦', color: '#f0abfc', category: 'strings' },
-            { key: 'violin', name: '小提琴', short: '小', color: '#fda4af', category: 'strings' },
-            { key: 'cello', name: '大提琴', short: '大', color: '#c4b5fd', category: 'strings' },
-            { key: 'sax', name: '萨克斯', short: '萨', color: '#fcd34d', category: 'wind' },
-            { key: 'trumpet', name: '小号', short: '号', color: '#fdba74', category: 'wind' },
-            { key: 'trombone', name: '长号', short: '长', color: '#fca5a5', category: 'wind' },
-            { key: 'flute', name: '长笛', short: '笛', color: '#86efac', category: 'wind' },
-            { key: 'clarinet', name: '单簧管', short: '簧', color: '#93c5fd', category: 'wind' },
-            { key: 'harmonica', name: '口琴', short: '口', color: '#5eead4', category: 'wind' },
-            { key: 'dj', name: 'DJ/搓盘', short: 'DJ', color: '#a3e635', category: 'electronic' },
-            { key: 'sampler', name: '采样器', short: '采', color: '#bef264', category: 'electronic' }
+            { key: 'vocalM', name: '男主唱', short: '男', color: '#60a5fa', category: 'vocal', icon: 'fa-microphone' },
+            { key: 'vocalF', name: '女主唱', short: '女', color: '#f472b6', category: 'vocal', icon: 'fa-microphone' },
+            { key: 'vocalBG', name: '和声', short: '和', color: '#c084fc', category: 'vocal', icon: 'fa-microphone-lines' },
+            { key: 'lead', name: '主音吉他', short: '主', color: '#a78bfa', category: 'guitar', icon: 'fa-guitar' },
+            { key: 'rhythm', name: '节奏吉他', short: '节', color: '#fb923c', category: 'guitar', icon: 'fa-guitar' },
+            { key: 'acoustic', name: '木吉他', short: '木', color: '#d4a574', category: 'guitar', icon: 'fa-guitar' },
+            { key: 'bass', name: '贝斯', short: '贝', color: '#4ade80', category: 'bass', icon: 'fa-guitar' },
+            { key: 'doubleBass', name: '低音提琴', short: '低', color: '#84cc16', category: 'bass', icon: 'fa-music' },
+            { key: 'drum', name: '鼓', short: '鼓', color: '#f87171', category: 'drums', icon: 'fa-drum' },
+            { key: 'percussion', name: '打击乐', short: '击', color: '#fbbf24', category: 'drums', icon: 'fa-drum' },
+            { key: 'keyboard', name: '键盘', short: '键', color: '#22d3ee', category: 'keys', icon: 'fa-keyboard' },
+            { key: 'piano', name: '钢琴', short: '钢', color: '#38bdf8', category: 'keys', icon: 'fa-music' },
+            { key: 'synth', name: '合成器', short: '合', color: '#818cf8', category: 'keys', icon: 'fa-keyboard' },
+            { key: 'organ', name: '管风琴', short: '管', color: '#a78bfa', category: 'keys', icon: 'fa-music' },
+            { key: 'strings', name: '弦乐组', short: '弦', color: '#f0abfc', category: 'strings', icon: 'fa-music' },
+            { key: 'violin', name: '小提琴', short: '小', color: '#fda4af', category: 'strings', icon: 'fa-music' },
+            { key: 'cello', name: '大提琴', short: '大', color: '#c4b5fd', category: 'strings', icon: 'fa-music' },
+            { key: 'sax', name: '萨克斯', short: '萨', color: '#fcd34d', category: 'wind', icon: 'fa-music' },
+            { key: 'trumpet', name: '小号', short: '号', color: '#fdba74', category: 'wind', icon: 'fa-music' },
+            { key: 'trombone', name: '长号', short: '长', color: '#fca5a5', category: 'wind', icon: 'fa-music' },
+            { key: 'flute', name: '长笛', short: '笛', color: '#86efac', category: 'wind', icon: 'fa-music' },
+            { key: 'clarinet', name: '单簧管', short: '簧', color: '#93c5fd', category: 'wind', icon: 'fa-music' },
+            { key: 'harmonica', name: '口琴', short: '口', color: '#5eead4', category: 'wind', icon: 'fa-music' },
+            { key: 'dj', name: 'DJ/搓盘', short: 'DJ', color: '#a3e635', category: 'electronic', icon: 'fa-compact-disc' },
+            { key: 'sampler', name: '采样器', short: '采', color: '#bef264', category: 'electronic', icon: 'fa-compact-disc' }
         ];
         
         // Custom instruments (loaded from localStorage)
@@ -1320,12 +1315,12 @@
             instrumentList.forEach(instDef => {
                 const active = inst[instDef.key];
                 if (active) {
-                    icons.push(`<div class="instrument-icon active" style="background: ${instDef.color}30; color: ${instDef.color}; border: 1px solid ${instDef.color}" title="${instDef.name}">${instDef.short}</div>`);
+                    icons.push(`<div class="instrument-icon active" style="background: ${instDef.color}30; color: ${instDef.color}; border: 1px solid ${instDef.color}" title="${instDef.name}"><i class="fas ${instDef.icon}"></i></div>`);
                 }
             });
             // Show at least a placeholder if no instruments
             if (icons.length === 0) {
-                icons.push(`<div class="instrument-icon inactive" style="color: #52525b;" title="无乐器">-</div>`);
+                icons.push(`<div class="instrument-icon inactive" style="color: #52525b;" title="无乐器"><i class="fas fa-music"></i></div>`);
             }
             return icons.join('');
         }
@@ -1346,7 +1341,6 @@
         // Update Timeline
         function updateTimeline() {
             const container = document.getElementById('timeline');
-            const barWidth = parseInt(document.getElementById('barWidth').value);
             
             if (timeline.length === 0) {
                 container.innerHTML = `
@@ -1364,7 +1358,6 @@
             timeline.forEach((item, idx) => {
                 const div = document.createElement('div');
                 div.className = `timeline-item p-4 type-${item.type}`;
-                div.style.width = `${item.bars * barWidth}px`;
                 const displayChords = convertToNoteNames(item.chords, songInfo);
                 div.innerHTML = `
                     <div class="flex items-center justify-between mb-2">
