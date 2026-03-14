@@ -20,13 +20,11 @@
 
 ## 🚀 在线演示
 
-[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Visit%20Demo-blue?style=for-the-badge&logo=github)](https://gdfgr2wag32n6.ok.kimi.link)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Visit%20Demo-blue?style=for-the-badge&logo=github)](https://flykitezero.github.io/open-pu/)
 
-**[👉 点击体验在线演示](https://gdfgr2wag32n6.ok.kimi.link)**
+**[👉 点击体验在线演示](https://flykitezero.github.io/open-pu/)**
 
-### 网页演示截图
 
-![open-pu Demo](demo-screenshot.png)
 
 ## 📦 快速开始
 
