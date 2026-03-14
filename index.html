@@ -1680,33 +1680,10 @@
                 maskLeft.style.width = Math.max(0, rect.left - padding) + 'px';
                 maskLeft.style.height = (rect.height + padding * 2) + 'px';
                 
-                // Position step box with boundary checks
-                const boxWidth = 380;
-                const boxHeight = 280;
-                const margin = 20;
-                
-                // Calculate available space
-                const spaceAbove = rect.top;
-                const spaceBelow = window.innerHeight - rect.bottom;
-                
-                let top, left;
-                
-                // Decide vertical position (prefer below, then above)
-                if (spaceBelow >= boxHeight + margin) {
-                    top = rect.bottom + margin;
-                } else if (spaceAbove >= boxHeight + margin) {
-                    top = rect.top - boxHeight - margin;
-                } else {
-                    // Not enough space above or below, center vertically
-                    top = Math.max(margin, (window.innerHeight - boxHeight) / 2);
-                }
-                
-                // Decide horizontal position (center on element, but keep in bounds)
-                left = rect.left + rect.width / 2 - boxWidth / 2;
-                left = Math.max(margin, Math.min(left, window.innerWidth - boxWidth - margin));
-                
-                stepBox.style.top = top + 'px';
-                stepBox.style.left = left + 'px';
+                // Always center the step box in viewport
+                stepBox.style.top = '50%';
+                stepBox.style.left = '50%';
+                stepBox.style.transform = 'translate(-50%, -50%)';
             } else {
                 // Show full mask, hide individual masks
                 fullMask.style.display = 'block';
