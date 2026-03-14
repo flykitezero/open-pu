@@ -921,9 +921,6 @@
                 
                 <div class="w-px h-8 bg-zinc-800 mx-1"></div>
                 
-                <button onclick="showImportModal()" class="btn-icon" title="导入">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                </button>
                 <button onclick="undo()" class="btn-icon" title="撤销">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
                 </button>
@@ -947,11 +944,11 @@
                     </button>
                     <div id="exportImportMenu" class="absolute right-0 mt-2 w-48 bg-zinc-900 border border-zinc-800 rounded-xl shadow-lg z-50 hidden">
                         <div class="py-2">
-                            <button onclick="showExportModal()" class="w-full text-left px-4 py-2 text-sm hover:bg-zinc-800/50 rounded-lg flex items-center gap-2">
+                            <button onclick="showExportModal()" class="w-full text-left px-4 py-2.5 text-sm hover:bg-zinc-800/50 rounded-lg flex items-center gap-3 transition">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                 导出乐谱
                             </button>
-                            <button onclick="showImportModal()" class="w-full text-left px-4 py-2 text-sm hover:bg-zinc-800/50 rounded-lg flex items-center gap-2">
+                            <button onclick="showImportModal()" class="w-full text-left px-4 py-2.5 text-sm hover:bg-zinc-800/50 rounded-lg flex items-center gap-3 transition">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                 导入乐谱
                             </button>
@@ -1368,7 +1365,7 @@
         const romanToIndex = { 'Ⅰ': 0, 'Ⅱ': 1, 'Ⅲ': 2, 'Ⅳ': 3, 'Ⅴ': 4, 'Ⅵ': 5, 'Ⅶ': 6 };
         
         // State
-        let songInfo = { title: '《静止》', artist: '花儿乐队', keyNote: 'G', keyMode: 'major', keyScale: null, bpm: 130 };
+        let songInfo = { title: 'Demo Song', artist: '', keyNote: 'C', keyMode: 'major', keyScale: null, bpm: 90 };
         let showNoteNames = false;
         let library = [];
         let timeline = [];
@@ -1443,11 +1440,11 @@
         // Initialize library with minimal templates
         function initLibrary() {
             library = [
-                { id: 1, name: '前奏 INTRO', type: 'intro', bars: 8, chords: 'Ⅰ-Ⅴ-Ⅵm-Ⅳ', note: '', inst: { vocalM: 0, vocalF: 0, lead: 1, rhythm: 1, bass: 1, drum: 1 }},
-                { id: 2, name: '主歌 VERSE', type: 'verse', bars: 8, chords: 'Ⅰ-Ⅰ-Ⅵm-Ⅵm-Ⅳ-Ⅴ-Ⅰ-Ⅰ', note: '', inst: { vocalM: 1, vocalF: 0, rhythm: 1, bass: 1, drum: 1 }},
-                { id: 3, name: '副歌 CHORUS', type: 'chorus', bars: 8, chords: 'Ⅵm-Ⅳ-Ⅰ-Ⅴ', note: '', inst: { vocalM: 1, vocalF: 0, lead: 1, rhythm: 1, bass: 1, drum: 1 }},
-                { id: 4, name: '间奏 INTERLUDE', type: 'interlude', bars: 8, chords: 'Ⅰ-Ⅴ-Ⅵm-Ⅳ', note: '', inst: { lead: 1, rhythm: 1, bass: 1, drum: 1 }},
-                { id: 5, name: '尾奏 OUTRO', type: 'outro', bars: 8, chords: 'Ⅰ', note: '', inst: { lead: 1, rhythm: 1, bass: 1, drum: 1 }},
+                { id: 1, name: '前奏 INTRO', type: 'intro', bars: 8, chords: 'Ⅰ-Ⅵm-Ⅳ-Ⅴ', note: '', inst: { vocalM: 0, vocalF: 0, lead: 1, rhythm: 1, bass: 1, drum: 1 }},
+                { id: 2, name: '主歌 VERSE', type: 'verse', bars: 8, chords: 'Ⅰ-Ⅵm-Ⅳ-Ⅴ', note: '', inst: { vocalM: 1, vocalF: 0, rhythm: 1, bass: 1, drum: 1 }},
+                { id: 3, name: '副歌 CHORUS', type: 'chorus', bars: 8, chords: 'Ⅰ-Ⅵm-Ⅳ-Ⅴ', note: '', inst: { vocalM: 1, vocalF: 0, lead: 1, rhythm: 1, bass: 1, drum: 1 }},
+                { id: 4, name: '间奏 INTERLUDE', type: 'interlude', bars: 8, chords: 'Ⅰ-Ⅵm-Ⅳ-Ⅴ', note: '', inst: { lead: 1, rhythm: 1, bass: 1, drum: 1 }},
+                { id: 5, name: '尾奏 OUTRO', type: 'outro', bars: 8, chords: 'Ⅰ-Ⅵm-Ⅳ-Ⅴ', note: '', inst: { lead: 1, rhythm: 1, bass: 1, drum: 1 }},
             ];
         }
 
