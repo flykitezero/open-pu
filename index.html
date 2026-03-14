@@ -424,17 +424,24 @@
             transform: translateY(0);
         }
         .instrument-list {
-            max-height: 80px;
-            overflow-x: auto;
-            overflow-y: hidden;
+            max-height: 200px;
+            overflow-y: auto;
             margin-top: 12px;
             padding: 12px;
             background: rgba(0,0,0,0.2);
             border-radius: 12px;
             border: 1px solid rgba(139, 92, 246, 0.1);
+        }
+        
+        .instrument-list .toggle-btn {
+            display: inline-block;
+            margin: 4px;
+        }
+        
+        #otherInstrumentsContainer {
             display: flex;
-            gap: 8px;
             flex-wrap: wrap;
+            gap: 8px;
         }
         .instrument-group {
             margin-bottom: 12px;
@@ -1509,6 +1516,9 @@
             const container = document.getElementById('instrumentList');
             const search = document.getElementById('instSearch')?.value?.toLowerCase() || '';
             container.innerHTML = '';
+            container.style.display = 'flex';
+            container.style.flexWrap = 'wrap';
+            container.style.gap = '8px';
             
             const filtered = instrumentList.filter(inst => 
                 inst.name.toLowerCase().includes(search) || 
@@ -1538,7 +1548,7 @@
                 
                 const otherContainer = document.createElement('div');
                 otherContainer.id = 'otherInstrumentsContainer';
-                otherContainer.style.cssText = 'display: none; width: 100%;';
+                otherContainer.style.cssText = 'display: none; width: 100%; flex-wrap: wrap; gap: 8px;';
                 
                 otherInstruments.forEach(inst => {
                     const btn = document.createElement('button');
@@ -1560,8 +1570,6 @@
             const icon = document.getElementById('otherInstIcon');
             if (container.style.display === 'none') {
                 container.style.display = 'flex';
-                container.style.flexWrap = 'wrap';
-                container.style.gap = '8px';
                 icon.className = 'fa-solid fa-chevron-up';
             } else {
                 container.style.display = 'none';
