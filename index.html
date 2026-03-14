@@ -908,6 +908,13 @@
                         <span class="text-zinc-700">·</span>
                         <input type="number" id="songBpm" value="90" min="60" max="200" class="text-sm bg-transparent border-none text-zinc-400 w-14 focus:text-zinc-200 focus:outline-none" onchange="updateSongInfo()">
                         <span class="text-zinc-500 text-xs">BPM</span>
+                        <span class="text-zinc-700">·</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="toggleMetronome()" id="metronomeBtn" class="w-10 h-10 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 transition" title="节拍器">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            </button>
+                            <div id="metronomeIndicator" class="w-3 h-3 rounded-full bg-zinc-700 transition-all duration-100"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1370,7 +1377,11 @@
         let tutorialStep = 0;
         let selectedInstColor = '#60a5fa';
         let currentTheme = 'dark';
-        
+        let metronomeRunning = false;
+        let metronomeInterval = null;
+        let metronomeCount = 0;
+        let audioContext = null;
+
         // Key selector state
         let tempKeyNote = 'G';
         let tempKeyMode = 'major';
@@ -1428,6 +1439,72 @@
             { key: 'sampler', name: '采样器', short: '采', color: '#bef264', category: 'electronic', icon: 'fa-compact-disc', common: false }
         ];
         
+        // Metronome functions
+        function toggleMetronome() {
+            if (metronomeRunning) {
+                stopMetronome();
+            } else {
+                startMetronome();
+            }
+        }
+
+        function startMetronome() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            const bpm = songInfo.bpm;
+            const interval = 60000 / bpm; // milliseconds per beat
+            
+            metronomeRunning = true;
+            document.getElementById('metronomeBtn').classList.add('text-green-500', 'bg-green-500/10', 'border', 'border-green-500/30');
+            document.getElementById('metronomeBtn').classList.remove('text-zinc-400');
+            
+            metronomeInterval = setInterval(() => {
+                playMetronomeSound(metronomeCount === 0);
+                updateMetronomeIndicator(metronomeCount === 0);
+                metronomeCount = (metronomeCount + 1) % 4;
+            }, interval);
+        }
+
+        function stopMetronome() {
+            if (metronomeInterval) {
+                clearInterval(metronomeInterval);
+                metronomeInterval = null;
+            }
+            metronomeRunning = false;
+            metronomeCount = 0;
+            document.getElementById('metronomeBtn').classList.remove('text-green-500', 'bg-green-500/10', 'border', 'border-green-500/30');
+            document.getElementById('metronomeBtn').classList.add('text-zinc-400');
+            document.getElementById('metronomeIndicator').style.background = '#3f3f46';
+        }
+
+        function playMetronomeSound(isDownbeat) {
+            if (!audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(isDownbeat ? 800 : 600, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        function updateMetronomeIndicator(isDownbeat) {
+            const indicator = document.getElementById('metronomeIndicator');
+            indicator.style.background = isDownbeat ? '#22c55e' : '#3b82f6';
+            indicator.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                indicator.style.transform = 'scale(1)';
+            }, 100);
+        }
+
         // Custom instruments (loaded from localStorage)
         let customInstruments = [];
         
@@ -1697,6 +1774,12 @@
                 element: 'songTitle' 
             },
             { 
+                title: '节拍器', 
+                text: '点击BPM旁边的节拍器图标可以启动/停止节拍器，帮助你按照设定的速度练习或创作。', 
+                icon: 'fa-clock',
+                element: 'metronomeBtn' 
+            },
+            { 
                 title: '段落库', 
                 text: '这里存放所有可用的段落模板。鼠标悬停在段落卡片上可以编辑，拖拽到右侧时间轴即可使用。', 
                 icon: 'fa-folder-open',
@@ -1844,9 +1927,17 @@
 
         // Update song info
         function updateSongInfo() {
+            const oldBpm = songInfo.bpm;
             songInfo.title = document.getElementById('songTitle').value;
             songInfo.artist = document.getElementById('songArtist').value;
             songInfo.bpm = parseInt(document.getElementById('songBpm').value);
+            
+            // Restart metronome if BPM changed and it's running
+            if (metronomeRunning && songInfo.bpm !== oldBpm) {
+                stopMetronome();
+                startMetronome();
+            }
+            
             renderLibrary();
             updateTimeline();
         }
