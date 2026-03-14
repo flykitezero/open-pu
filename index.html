@@ -318,6 +318,232 @@
         .type-chorus { border-left-color: #f97316; }
         .type-interlude { border-left-color: #a855f7; }
         .type-outro { border-left-color: #ec4899; }
+        
+        /* Modal Styles */
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .modal-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            transform: rotate(90deg);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            letter-spacing: 0.01em;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .form-input {
+            background: linear-gradient(145deg, #1c1c24 0%, #18181c 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            width: 100%;
+            outline: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+        }
+        .form-input:focus { 
+            border-color: rgba(139, 92, 246, 0.6);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15), 0 4px 12px rgba(139, 92, 246, 0.1);
+            transform: translateY(-1px);
+        }
+        .form-input::placeholder { color: var(--text-placeholder); }
+        .chord-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .chord-button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: linear-gradient(145deg, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            color: #a78bfa;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+        .chord-button:hover {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            border-color: transparent;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+        .chord-button:active {
+            transform: translateY(0);
+        }
+        .instrument-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            border: 1px solid rgba(139, 92, 246, 0.1);
+        }
+        .instrument-group {
+            margin-bottom: 12px;
+        }
+        .instrument-group:last-child {
+            margin-bottom: 0;
+        }
+        .instrument-group-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+            padding-left: 4px;
+        }
+        .instrument-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .primary-button {
+            flex: 1;
+            padding: 12px 24px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            border: none;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+        }
+        .primary-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+        }
+        .primary-button:active {
+            transform: translateY(0);
+        }
+        .secondary-button {
+            padding: 12px 24px;
+            border-radius: 12px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .secondary-button:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
+        .danger-button {
+            padding: 12px 24px;
+            border-radius: 12px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .danger-button:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+        .toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            background: linear-gradient(145deg, #1e1e26 0%, #18181e 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(139, 92, 246, 0.1);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .toast-warning {
+            border-color: rgba(251, 191, 36, 0.5);
+        }
+        .toast-warning .toast-content i {
+            color: #fbbf24;
+        }
+        .toast-success {
+            border-color: rgba(34, 197, 94, 0.5);
+        }
+        .toast-success .toast-content i {
+            color: #22c55e;
+        }
+        .toast-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .toast-content i {
+            font-size: 18px;
+        }
         #pdfPreview {
             position: fixed;
             left: -9999px;
@@ -724,7 +950,7 @@
                         <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500/20 to-rose-600/20 flex items-center justify-center">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f472b6" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                         </div>
-                        <span class="font-semibold text-zinc-200">时间轴编排</span>
+                        <span class="font-semibold text-zinc-200">总谱</span>
                     </div>
                 </div>
                 
@@ -786,60 +1012,58 @@
                 <button onclick="closeSegmentModal()" class="modal-close">×</button>
             </div>
             
-            <div class="space-y-4">
+            <div class="form-group">
+                <label class="form-label">段落名称</label>
+                <input type="text" id="segName" placeholder="如：前奏 INTRO" class="form-input">
+            </div>
+            
+            <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">段落名称</label>
-                    <input type="text" id="segName" placeholder="如：前奏 INTRO" class="form-input">
+                    <label class="form-label">小节数</label>
+                    <input type="number" id="segBars" min="1" max="64" value="8" class="form-input">
                 </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">小节数</label>
-                        <input type="number" id="segBars" min="1" max="64" value="8" class="form-input">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">段落类型</label>
-                        <select id="segType" class="form-input">
-                            <option value="intro">前奏</option>
-                            <option value="verse">主歌</option>
-                            <option value="chorus">副歌</option>
-                            <option value="interlude">间奏</option>
-                            <option value="outro">尾奏</option>
-                        </select>
-                    </div>
-                </div>
-                
                 <div class="form-group">
-                    <label class="form-label">和弦进行（级数）</label>
-                    <input type="text" id="segChords" placeholder="如：Ⅰ-Ⅴ-Ⅵ-Ⅳ" class="form-input" style="font-style: italic;">
-                    <div class="chord-buttons">
-                        <button onclick="insertChord('Ⅰ')" class="chord-button">Ⅰ</button>
-                        <button onclick="insertChord('Ⅱ')" class="chord-button">Ⅱ</button>
-                        <button onclick="insertChord('Ⅲ')" class="chord-button">Ⅲ</button>
-                        <button onclick="insertChord('Ⅳ')" class="chord-button">Ⅳ</button>
-                        <button onclick="insertChord('Ⅴ')" class="chord-button">Ⅴ</button>
-                        <button onclick="insertChord('Ⅵ')" class="chord-button">Ⅵ</button>
-                        <button onclick="insertChord('Ⅶ°')" class="chord-button">Ⅶ°</button>
-                        <button onclick="insertChord(' - ')" class="chord-button">-</button>
-                    </div>
+                    <label class="form-label">段落类型</label>
+                    <select id="segType" class="form-input">
+                        <option value="intro">前奏</option>
+                        <option value="verse">主歌</option>
+                        <option value="chorus">副歌</option>
+                        <option value="interlude">间奏</option>
+                        <option value="outro">尾奏</option>
+                    </select>
                 </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">和弦进行（级数）</label>
+                <input type="text" id="segChords" placeholder="如：Ⅰ-Ⅴ-Ⅵ-Ⅳ" class="form-input" style="font-style: italic;">
+                <div class="chord-buttons">
+                    <button onclick="insertChord('Ⅰ')" class="chord-button">Ⅰ</button>
+                    <button onclick="insertChord('Ⅱ')" class="chord-button">Ⅱ</button>
+                    <button onclick="insertChord('Ⅲ')" class="chord-button">Ⅲ</button>
+                    <button onclick="insertChord('Ⅳ')" class="chord-button">Ⅳ</button>
+                    <button onclick="insertChord('Ⅴ')" class="chord-button">Ⅴ</button>
+                    <button onclick="insertChord('Ⅵ')" class="chord-button">Ⅵ</button>
+                    <button onclick="insertChord('Ⅶ°')" class="chord-button">Ⅶ°</button>
+                    <button onclick="insertChord(' - ')" class="chord-button">-</button>
+                </div>
+            </div>
 
-                <div class="form-group">
-                    <label class="form-label">备注（可选）</label>
-                    <input type="text" id="segNote" placeholder="如：高潮、Solo等" class="form-input">
+            <div class="form-group">
+                <label class="form-label">备注（可选）</label>
+                <input type="text" id="segNote" placeholder="如：高潮、Solo等" class="form-input">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">乐器配置</label>
+                <input type="text" id="instSearch" placeholder="搜索乐器..." class="form-input" oninput="filterInstruments()">
+                <div id="instrumentList" class="instrument-list scrollbar">
+                    <!-- Instruments will be rendered here -->
                 </div>
-                
-                <div class="form-group">
-                    <label class="form-label">乐器配置</label>
-                    <input type="text" id="instSearch" placeholder="搜索乐器..." class="form-input" oninput="filterInstruments()">
-                    <div id="instrumentList" class="instrument-list">
-                        <!-- Instruments will be rendered here -->
-                    </div>
-                    <div class="mt-3 pt-3 border-t border-gray-200">
-                        <button onclick="showAddInstrumentModal()" class="text-sm text-blue-500 hover:underline flex items-center gap-1">
-                            <span>+</span> 添加自定义乐器
-                        </button>
-                    </div>
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(139, 92, 246, 0.1);">
+                    <button onclick="showAddInstrumentModal()" class="text-sm flex items-center gap-2" style="color: #a78bfa; background: none; border: none; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.background='rgba(139, 92, 246, 0.1)'" onmouseout="this.style.background='none'">
+                        <span style="font-size: 16px;">+</span> 添加自定义乐器
+                    </button>
                 </div>
             </div>
             
@@ -1353,7 +1577,7 @@
                 element: 'libraryPanel' 
             },
             { 
-                title: '时间轴编排', 
+                title: '总谱', 
                 text: '将段落拖拽到这里，按顺序排列你的歌曲结构。可以随时调整顺序或删除段落。', 
                 icon: 'fa-layer-group',
                 element: 'timelinePanel' 
@@ -1571,12 +1795,12 @@
             instrumentList.forEach(instDef => {
                 const active = inst[instDef.key];
                 if (active) {
-                    icons.push(`<div class="instrument-icon active" style="background: ${instDef.color}30; color: ${instDef.color}; border: 1px solid ${instDef.color}" title="${instDef.name}"><i class="fas ${instDef.icon}"></i></div>`);
+                    icons.push(`<div class="instrument-icon active" style="background: ${instDef.color}30; color: ${instDef.color}; border: 1px solid ${instDef.color}" title="${instDef.name}">${instDef.short}</div>`);
                 }
             });
             // Show at least a placeholder if no instruments
             if (icons.length === 0) {
-                icons.push(`<div class="instrument-icon inactive" style="color: #52525b;" title="无乐器"><i class="fas fa-music"></i></div>`);
+                icons.push(`<div class="instrument-icon inactive" style="color: #52525b;" title="无乐器">-</div>`);
             }
             return icons.join('');
         }
@@ -1850,7 +2074,31 @@
         }
 
         // Export
-        function showExportModal() { if (!timeline.length) { alert('时间轴为空'); return; } document.getElementById('exportModal').classList.add('active'); }
+        function showExportModal() {
+            if (!timeline.length) {
+                showToast('总谱为空，请先添加段落', 'warning');
+                return;
+            }
+            document.getElementById('exportModal').classList.add('active');
+        }
+        
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="fas ${type === 'warning' ? 'fa-exclamation-triangle' : type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
         function closeExportModal() { document.getElementById('exportModal').classList.remove('active'); }
 
         async function exportPDF() {
