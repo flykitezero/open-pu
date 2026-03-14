@@ -424,13 +424,17 @@
             transform: translateY(0);
         }
         .instrument-list {
-            max-height: 200px;
-            overflow-y: auto;
+            max-height: 80px;
+            overflow-x: auto;
+            overflow-y: hidden;
             margin-top: 12px;
             padding: 12px;
             background: rgba(0,0,0,0.2);
             border-radius: 12px;
             border: 1px solid rgba(139, 92, 246, 0.1);
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
         }
         .instrument-group {
             margin-bottom: 12px;
@@ -1313,7 +1317,7 @@
             // 常用乐器
             { key: 'vocalM', name: '男主唱', short: '男', color: '#60a5fa', category: 'vocal', icon: 'fa-microphone', common: true },
             { key: 'vocalF', name: '女主唱', short: '女', color: '#f472b6', category: 'vocal', icon: 'fa-microphone', common: true },
-            { key: 'vocalBG', name: '和声', short: '和', color: '#c084fc', category: 'vocal', icon: 'fa-microphone-lines', common: true },
+            { key: 'vocalBG', name: '和声', short: '和', color: '#c084fc', category: 'vocal', icon: 'fa-microphone-lines', common: false },
             { key: 'lead', name: '主音吉他', short: '主', color: '#a78bfa', category: 'guitar', icon: 'fa-guitar', common: true },
             { key: 'rhythm', name: '节奏吉他', short: '节', color: '#fb923c', category: 'guitar', icon: 'fa-guitar', common: true },
             { key: 'acoustic', name: '木吉他', short: '木', color: '#d4a574', category: 'guitar', icon: 'fa-guitar', common: true },
