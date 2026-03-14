@@ -376,14 +376,40 @@
         .tutorial-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.92);
-            backdrop-filter: blur(8px);
             z-index: 200;
             display: none;
+            pointer-events: none;
         }
-        .tutorial-overlay.active { display: flex; align-items: center; justify-content: center; }
-        .tutorial-step {
+        .tutorial-overlay.active { display: block; }
+        .tutorial-backdrop {
             position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(4px);
+            z-index: 1;
+        }
+        .tutorial-spotlight {
+            position: absolute;
+            border: 3px solid rgba(139, 92, 246, 1);
+            border-radius: 16px;
+            background: transparent;
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.6), 0 0 60px rgba(139, 92, 246, 0.3);
+            pointer-events: none;
+            z-index: 2;
+            animation: spotlightPulse 2s ease-in-out infinite;
+        }
+        @keyframes spotlightPulse {
+            0%, 100% { 
+                box-shadow: 0 0 30px rgba(139, 92, 246, 0.6), 0 0 60px rgba(139, 92, 246, 0.3);
+                border-color: rgba(139, 92, 246, 1);
+            }
+            50% { 
+                box-shadow: 0 0 40px rgba(139, 92, 246, 0.8), 0 0 80px rgba(139, 92, 246, 0.4);
+                border-color: rgba(167, 139, 250, 1);
+            }
+        }
+        .tutorial-step {
+            position: fixed;
             background: linear-gradient(145deg, #1e1e26 0%, #18181e 100%);
             border: 1px solid rgba(139, 92, 246, 0.3);
             border-radius: 20px;
@@ -393,7 +419,8 @@
             box-shadow: 0 32px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255,255,255,0.05);
             animation: tutorialSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             overflow: hidden;
-            z-index: 202;
+            z-index: 203;
+            pointer-events: auto;
         }
         @keyframes tutorialSlideIn {
             from { opacity: 0; transform: scale(0.85) translateY(20px); }
@@ -494,19 +521,6 @@
             transform: translateY(-1px);
             box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
         }
-        .tutorial-highlight {
-            position: absolute;
-            border: 2px solid rgba(139, 92, 246, 0.8);
-            border-radius: 16px;
-            box-shadow: 0 0 0 9999px rgba(0,0,0,0.85), 0 0 40px rgba(139, 92, 246, 0.4);
-            pointer-events: none;
-            animation: highlightPulse 2s infinite;
-            z-index: 201;
-        }
-        @keyframes highlightPulse {
-            0%, 100% { box-shadow: 0 0 0 9999px rgba(0,0,0,0.85), 0 0 30px rgba(139, 92, 246, 0.4); }
-            50% { box-shadow: 0 0 0 9999px rgba(0,0,0,0.85), 0 0 50px rgba(139, 92, 246, 0.6); }
-        }
         .help-btn {
             position: fixed;
             bottom: 28px;
@@ -535,6 +549,10 @@
         @keyframes helpIconFloat {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-3px); }
+        }
+        .tutorial-highlight-element {
+            position: relative;
+            z-index: 202 !important;
         }
         .stat-number {
             background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
@@ -931,8 +949,9 @@
     </div>
 
     <!-- Tutorial Overlay -->
-    <div id="tutorialOverlay" class="modal-overlay">
-        <div class="tutorial-highlight" id="tutorialHighlight" style="display: none;"></div>
+    <div id="tutorialOverlay" class="tutorial-overlay">
+        <div class="tutorial-backdrop"></div>
+        <div class="tutorial-spotlight" id="tutorialSpotlight" style="display: none;"></div>
         <div class="tutorial-step" id="tutorialStep">
             <div class="tutorial-header">
                 <div class="tutorial-icon" id="tutorialIcon">
@@ -1357,20 +1376,28 @@
             iconEl.offsetHeight; // Trigger reflow
             iconEl.style.animation = 'iconBounce 0.6s ease-out 0.2s both';
             
-            const highlight = document.getElementById('tutorialHighlight');
+            const spotlight = document.getElementById('tutorialSpotlight');
             const stepBox = document.getElementById('tutorialStep');
             
-            // Reset transform
-            stepBox.style.transform = 'none';
+            // Remove highlight class from previous element
+            const prevHighlighted = document.querySelector('.tutorial-highlight-element');
+            if (prevHighlighted) {
+                prevHighlighted.classList.remove('tutorial-highlight-element');
+            }
             
             if (step.element) {
                 const el = document.getElementById(step.element);
                 const rect = el.getBoundingClientRect();
-                highlight.style.display = 'block';
-                highlight.style.left = rect.left - 8 + 'px';
-                highlight.style.top = rect.top - 8 + 'px';
-                highlight.style.width = rect.width + 16 + 'px';
-                highlight.style.height = rect.height + 16 + 'px';
+                
+                // Add highlight class to element
+                el.classList.add('tutorial-highlight-element');
+                
+                // Position spotlight
+                spotlight.style.display = 'block';
+                spotlight.style.left = rect.left - 8 + 'px';
+                spotlight.style.top = rect.top - 8 + 'px';
+                spotlight.style.width = rect.width + 16 + 'px';
+                spotlight.style.height = rect.height + 16 + 'px';
                 
                 // Position step box with boundary checks
                 const boxWidth = 380;
@@ -1380,8 +1407,6 @@
                 // Calculate available space
                 const spaceAbove = rect.top;
                 const spaceBelow = window.innerHeight - rect.bottom;
-                const spaceLeft = rect.left;
-                const spaceRight = window.innerWidth - rect.right;
                 
                 let top, left;
                 
@@ -1402,7 +1427,7 @@
                 stepBox.style.top = top + 'px';
                 stepBox.style.left = left + 'px';
             } else {
-                highlight.style.display = 'none';
+                spotlight.style.display = 'none';
                 // Center in viewport
                 stepBox.style.top = '50%';
                 stepBox.style.left = '50%';
@@ -1422,6 +1447,12 @@
         function skipTutorial() {
             document.getElementById('tutorialOverlay').classList.remove('active');
             localStorage.setItem('tutorialSeen', 'true');
+            
+            // Remove highlight class
+            const highlighted = document.querySelector('.tutorial-highlight-element');
+            if (highlighted) {
+                highlighted.classList.remove('tutorial-highlight-element');
+            }
         }
 
         // Update song info
