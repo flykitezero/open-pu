@@ -906,7 +906,7 @@
                             </div>
                         </div>
                         <span class="text-zinc-700">·</span>
-                        <input type="number" id="songBpm" value="130" min="60" max="200" class="text-sm bg-transparent border-none text-zinc-400 w-14 focus:text-zinc-200 focus:outline-none" onchange="updateSongInfo()">
+                        <input type="number" id="songBpm" value="90" min="60" max="200" class="text-sm bg-transparent border-none text-zinc-400 w-14 focus:text-zinc-200 focus:outline-none" onchange="updateSongInfo()">
                         <span class="text-zinc-500 text-xs">BPM</span>
                     </div>
                 </div>
@@ -1553,15 +1553,6 @@
 
         // Init
         function init() {
-            // Load theme from localStorage
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                currentTheme = savedTheme;
-                document.body.classList.toggle('light-theme', currentTheme === 'light');
-                document.getElementById('themeIconDark').classList.toggle('hidden', currentTheme === 'light');
-                document.getElementById('themeIconLight').classList.toggle('hidden', currentTheme === 'dark');
-            }
-            
             // Load custom instruments from localStorage
             const saved = localStorage.getItem('customInstruments');
             if (saved) {
@@ -2169,15 +2160,6 @@
                 updateKeyDisplay();
                 
                 if (data.bpm) { songInfo.bpm = data.bpm; document.getElementById('songBpm').value = data.bpm; }
-                
-                // Import theme if present
-                if (data.theme) {
-                    currentTheme = data.theme;
-                    document.body.classList.toggle('light-theme', currentTheme === 'light');
-                    document.getElementById('themeIconDark').classList.toggle('hidden', currentTheme === 'light');
-                    document.getElementById('themeIconLight').classList.toggle('hidden', currentTheme === 'dark');
-                    localStorage.setItem('theme', currentTheme);
-                }
                 
                 // Import custom instruments if present
                 if (data.customInstruments && data.customInstruments.length) {
