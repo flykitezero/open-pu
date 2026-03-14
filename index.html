@@ -1113,7 +1113,10 @@
         <div class="modal-content scrollbar" style="padding: 32px;">
             <div class="modal-header">
                 <h3 class="modal-title" id="segmentModalTitle">编辑段落</h3>
-                <button onclick="closeSegmentModal()" class="modal-close">×</button>
+                <div class="flex gap-2">
+                    <button onclick="saveSegment()" class="primary-button" style="padding: 8px 16px; font-size: 13px;">保存</button>
+                    <button onclick="closeSegmentModal()" class="modal-close">×</button>
+                </div>
             </div>
             
             <div class="form-group">
@@ -1124,18 +1127,31 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">小节数</label>
-                    <input type="number" id="segBars" min="1" max="64" value="8" class="form-input">
+                    <div class="relative">
+                        <input type="number" id="segBars" min="1" max="64" value="8" class="form-input" style="appearance: textfield; -moz-appearance: textfield;">
+                        <style>
+                            #segBars::-webkit-inner-spin-button,
+                            #segBars::-webkit-outer-spin-button {
+                                -webkit-appearance: none;
+                                margin: 0;
+                            }
+                        </style>
+                        <div class="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col gap-0.5">
+                            <button onclick="adjustBars(1)" class="w-5 h-5 rounded bg-zinc-800 text-zinc-400 hover:bg-violet-600 hover:text-white transition flex items-center justify-center text-xs leading-none">▲</button>
+                            <button onclick="adjustBars(-1)" class="w-5 h-5 rounded bg-zinc-800 text-zinc-400 hover:bg-violet-600 hover:text-white transition flex items-center justify-center text-xs leading-none">▼</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">段落类型</label>
                     <select id="segType" class="form-input">
-                        <option value="intro">前奏</option>
-                        <option value="verse">主歌</option>
-                        <option value="chorus">副歌</option>
-                        <option value="interlude">间奏</option>
-                        <option value="outro">尾奏</option>
-                        <option value="solo">Solo</option>
-                        <option value="other">其他</option>
+                        <option value="intro" style="background: #1c1c24; color: #fafafa;">前奏</option>
+                        <option value="verse" style="background: #1c1c24; color: #fafafa;">主歌</option>
+                        <option value="chorus" style="background: #1c1c24; color: #fafafa;">副歌</option>
+                        <option value="interlude" style="background: #1c1c24; color: #fafafa;">间奏</option>
+                        <option value="outro" style="background: #1c1c24; color: #fafafa;">尾奏</option>
+                        <option value="solo" style="background: #1c1c24; color: #fafafa;">Solo</option>
+                        <option value="other" style="background: #1c1c24; color: #fafafa;">其他</option>
                     </select>
                 </div>
             </div>
@@ -1176,7 +1192,6 @@
             <div class="modal-actions">
                 <button id="deleteSegBtn" onclick="deleteSegment()" class="danger-button hidden">删除</button>
                 <button onclick="closeSegmentModal()" class="secondary-button">取消</button>
-                <button onclick="saveSegment()" class="primary-button">保存</button>
             </div>
         </div>
     </div>
@@ -2099,7 +2114,7 @@
         function editTimelineItem(idx) {
             editingLibraryId = null; editingTimelineIndex = idx;
             const item = timeline[idx];
-            document.getElementById('segmentModalTitle').textContent = '编辑时间轴段落';
+            document.getElementById('segmentModalTitle').textContent = '编辑段落';
             document.getElementById('segName').value = item.name;
             document.getElementById('segBars').value = item.bars;
             document.getElementById('segType').value = item.type;
@@ -2220,6 +2235,13 @@
         function removeTimelineItem(idx) { timeline.splice(idx, 1); updateTimeline(); }
         function clearTimeline() { if (timeline.length && confirm('确定清空时间轴？')) { timeline = []; updateTimeline(); } }
         function undo() { if (timeline.length) { timeline.pop(); updateTimeline(); } }
+        
+        function adjustBars(delta) {
+            const input = document.getElementById('segBars');
+            let value = parseInt(input.value) + delta;
+            value = Math.max(1, Math.min(64, value));
+            input.value = value;
+        }
 
         // Import
         function showImportModal() { document.getElementById('importModal').classList.add('active'); document.getElementById('importText').value = ''; }
