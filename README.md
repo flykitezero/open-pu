@@ -2,6 +2,8 @@
 
 一个现代化的、可视化的歌曲乐谱编排工具，专为乐队和音乐创作者设计。
 
+**版本**: 1.0.0
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ![Preview](https://via.placeholder.com/800x400/13131a/8b5cf6?text=open-pu+Preview)
