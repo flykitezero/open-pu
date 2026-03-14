@@ -2304,17 +2304,22 @@
                         inst: normalizeInst(item.inst || item.instruments || {}) 
                     }));
                 }
-                const newSegs = data.segments.map(item => ({ 
-                    name: item.name || '未命名', 
-                    type: item.type || 'verse', 
-                    bars: item.bars || 8, 
-                    chords: item.chords || '', 
-                    note: item.note || '', 
-                    inst: normalizeInst(item.inst || item.instruments || {}), 
-                    uid: Date.now() + Math.random() 
-                }));
-                if (document.getElementById('importReplace').checked) timeline = newSegs;
-                else timeline = timeline.concat(newSegs);
+                
+                // Import segments
+                if (data.segments && data.segments.length) {
+                    const newSegs = data.segments.map(item => ({ 
+                        name: item.name || '未命名', 
+                        type: item.type || 'verse', 
+                        bars: item.bars || 8, 
+                        chords: item.chords || '', 
+                        note: item.note || '', 
+                        inst: normalizeInst(item.inst || item.instruments || {}), 
+                        uid: Date.now() + Math.random() 
+                    }));
+                    if (document.getElementById('importReplace').checked) timeline = newSegs;
+                    else timeline = timeline.concat(newSegs);
+                }
+                
                 renderLibrary(); updateTimeline(); closeImportModal();
                 alert(`导入成功！\n歌名: ${songInfo.title}\n段落数: ${timeline.length}`);
             } catch (err) { alert('JSON格式错误: ' + err.message); }
