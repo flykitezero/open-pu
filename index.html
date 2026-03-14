@@ -376,59 +376,164 @@
         .tutorial-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(4px);
+            background: rgba(0,0,0,0.92);
+            backdrop-filter: blur(8px);
             z-index: 200;
             display: none;
         }
-        .tutorial-overlay.active { display: block; }
+        .tutorial-overlay.active { display: flex; align-items: center; justify-content: center; }
         .tutorial-step {
             position: absolute;
-            background: var(--bg-card);
-            border: 1px solid rgba(139, 92, 246, 0.4);
-            border-radius: 16px;
-            padding: 20px 24px;
-            max-width: 300px;
-            box-shadow: 0 24px 64px rgba(0,0,0,0.3), 0 0 40px rgba(139, 92, 246, 0.15), inset 0 1px 0 rgba(255,255,255,0.02);
-            animation: popIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(145deg, #1e1e26 0%, #18181e 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 20px;
+            padding: 0;
+            max-width: 380px;
+            width: 380px;
+            box-shadow: 0 32px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255,255,255,0.05);
+            animation: tutorialSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
         }
-        @keyframes popIn {
-            from { opacity: 0; transform: scale(0.9) translateY(10px); }
+        @keyframes tutorialSlideIn {
+            from { opacity: 0; transform: scale(0.85) translateY(20px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .tutorial-header {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(99, 102, 241, 0.1) 100%);
+            padding: 24px 28px 20px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+            position: relative;
+        }
+        .tutorial-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+            animation: iconBounce 0.6s ease-out 0.2s both;
+        }
+        @keyframes iconBounce {
+            from { transform: scale(0) rotate(-180deg); }
+            to { transform: scale(1) rotate(0deg); }
+        }
+        .tutorial-icon i {
+            font-size: 28px;
+            color: white;
+        }
+        .tutorial-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+        .tutorial-content {
+            padding: 20px 28px 24px;
+        }
+        .tutorial-text {
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+        .tutorial-progress-bar {
+            height: 4px;
+            background: rgba(139, 92, 246, 0.2);
+            border-radius: 2px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .tutorial-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8b5cf6 0%, #6366f1 100%);
+            border-radius: 2px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tutorial-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .tutorial-progress-text {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .tutorial-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        .tutorial-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+        }
+        .tutorial-btn-skip {
+            background: transparent;
+            color: var(--text-muted);
+        }
+        .tutorial-btn-skip:hover {
+            color: var(--text-primary);
+            background: rgba(255,255,255,0.05);
+        }
+        .tutorial-btn-next {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+        }
+        .tutorial-btn-next:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
         }
         .tutorial-highlight {
             position: absolute;
-            border: 2px solid rgba(139, 92, 246, 0.6);
-            border-radius: 14px;
-            box-shadow: 0 0 0 9999px rgba(0,0,0,0.75), 0 0 30px rgba(139, 92, 246, 0.3);
+            border: 2px solid rgba(139, 92, 246, 0.8);
+            border-radius: 16px;
+            box-shadow: 0 0 0 9999px rgba(0,0,0,0.85), 0 0 40px rgba(139, 92, 246, 0.4);
             pointer-events: none;
             animation: highlightPulse 2s infinite;
+            z-index: 201;
         }
         @keyframes highlightPulse {
-            0%, 100% { box-shadow: 0 0 0 9999px rgba(0,0,0,0.75), 0 0 20px rgba(139, 92, 246, 0.3); }
-            50% { box-shadow: 0 0 0 9999px rgba(0,0,0,0.75), 0 0 40px rgba(139, 92, 246, 0.5); }
+            0%, 100% { box-shadow: 0 0 0 9999px rgba(0,0,0,0.85), 0 0 30px rgba(139, 92, 246, 0.4); }
+            50% { box-shadow: 0 0 0 9999px rgba(0,0,0,0.85), 0 0 50px rgba(139, 92, 246, 0.6); }
         }
         .help-btn {
             position: fixed;
             bottom: 28px;
             right: 28px;
-            width: 52px;
-            height: 52px;
+            width: 56px;
+            height: 56px;
             background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 22px;
+            font-size: 24px;
             cursor: pointer;
             box-shadow: 0 8px 28px rgba(139, 92, 246, 0.4), 0 0 0 1px rgba(139, 92, 246, 0.3);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 50;
         }
         .help-btn:hover {
-            transform: scale(1.08);
+            transform: scale(1.1) rotate(15deg);
             box-shadow: 0 12px 36px rgba(139, 92, 246, 0.5), 0 0 0 1px rgba(139, 92, 246, 0.4);
+        }
+        .help-btn i {
+            animation: helpIconFloat 3s ease-in-out infinite;
+        }
+        @keyframes helpIconFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
         }
         .stat-number {
             background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
@@ -826,21 +931,34 @@
 
     <!-- Tutorial Overlay -->
     <div id="tutorialOverlay" class="modal-overlay">
-        <div class="tutorial-step" style="position: absolute; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 20px; max-width: 300px; box-shadow: var(--shadow-lg);" id="tutorialStep">
-            <h4 class="font-semibold text-text-primary mb-2" id="tutorialTitle">欢迎使用乐谱编排器</h4>
-            <p class="text-sm text-text-secondary mb-4" id="tutorialText">这是一个快速上手指南</p>
-            <div class="flex justify-between items-center">
-                <span class="text-xs text-text-muted" id="tutorialProgress">1/6</span>
-                <div class="flex gap-2">
-                    <button onclick="skipTutorial()" class="px-3 py-1.5 text-sm text-text-muted hover:text-text-primary transition">跳过</button>
-                    <button onclick="nextTutorial()" class="px-4 py-1.5 text-sm bg-accent-blue text-white rounded-radius-sm hover:bg-accent-blue/90 transition">下一步</button>
+        <div class="tutorial-highlight" id="tutorialHighlight" style="display: none;"></div>
+        <div class="tutorial-step" id="tutorialStep">
+            <div class="tutorial-header">
+                <div class="tutorial-icon" id="tutorialIcon">
+                    <i class="fas fa-music"></i>
+                </div>
+                <h4 class="tutorial-title" id="tutorialTitle">欢迎使用乐谱编排器</h4>
+            </div>
+            <div class="tutorial-content">
+                <p class="tutorial-text" id="tutorialText">这是一个快速上手指南</p>
+                <div class="tutorial-progress-bar">
+                    <div class="tutorial-progress-fill" id="tutorialProgressFill" style="width: 14.28%"></div>
+                </div>
+                <div class="tutorial-footer">
+                    <span class="tutorial-progress-text" id="tutorialProgress">1 / 7</span>
+                    <div class="tutorial-buttons">
+                        <button onclick="skipTutorial()" class="tutorial-btn tutorial-btn-skip">跳过</button>
+                        <button onclick="nextTutorial()" class="tutorial-btn tutorial-btn-next">下一步</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Help Button -->
-    <div class="help-button" onclick="startTutorial()" title="查看教程">?</div>
+    <div class="help-btn" onclick="startTutorial()" title="查看教程">
+        <i class="fas fa-question"></i>
+    </div>
 
     <!-- PDF Preview Container (hidden) -->
     <div id="pdfPreview">
@@ -1171,13 +1289,48 @@
 
         // Tutorial
         const tutorialSteps = [
-            { title: '欢迎使用乐谱编排器！', text: '这是一个可视化歌曲编排工具，让你轻松拖拽组合段落。', element: null },
-            { title: '编辑歌曲信息', text: '点击这里可以修改歌名、艺人、调性和速度。', element: 'songTitle' },
-            { title: '段落库', text: '这里存放所有可用的段落，鼠标悬停可编辑，拖拽到右侧时间轴使用。', element: 'libraryPanel' },
-            { title: '时间轴编排', text: '拖拽段落到这里，按顺序排列你的歌曲结构。段落长度会根据小节数自动调整。', element: 'timelinePanel' },
-            { title: '乐器配置', text: '编辑段落时，可以配置乐器。支持搜索乐器，还可以添加自定义乐器！', element: null },
-            { title: '级数/音名切换', text: '点击切换显示罗马级数或实际音名。', element: 'noteToggle' },
-            { title: '导出乐谱', text: '编排完成后，可以导出为PDF、图片或JSON保存。导出的段落长度会根据小节数显示。', element: null }
+            { 
+                title: '欢迎使用乐谱编排器！', 
+                text: '这是一个可视化歌曲编排工具，让你轻松拖拽组合段落，创建完美的歌曲结构。', 
+                icon: 'fa-music',
+                element: null 
+            },
+            { 
+                title: '编辑歌曲信息', 
+                text: '点击这里可以修改歌曲名称、艺人、调性和速度（BPM）。这些信息会显示在导出的乐谱上。', 
+                icon: 'fa-edit',
+                element: 'songTitle' 
+            },
+            { 
+                title: '段落库', 
+                text: '这里存放所有可用的段落模板。鼠标悬停在段落卡片上可以编辑，拖拽到右侧时间轴即可使用。', 
+                icon: 'fa-folder-open',
+                element: 'libraryPanel' 
+            },
+            { 
+                title: '时间轴编排', 
+                text: '将段落拖拽到这里，按顺序排列你的歌曲结构。可以随时调整顺序或删除段落。', 
+                icon: 'fa-layer-group',
+                element: 'timelinePanel' 
+            },
+            { 
+                title: '乐器配置', 
+                text: '编辑段落时，可以为每个段落配置乐器。支持搜索乐器，还可以添加自定义乐器！', 
+                icon: 'fa-guitar',
+                element: null 
+            },
+            { 
+                title: '级数/音名切换', 
+                text: '点击这个开关，可以在罗马级数（Ⅰ-Ⅴ-Ⅵ-Ⅳ）和实际音名（G-D-Em-C）之间切换显示。', 
+                icon: 'fa-exchange-alt',
+                element: 'noteToggle' 
+            },
+            { 
+                title: '导出乐谱', 
+                text: '编排完成后，点击导出按钮可以保存为PDF、图片或JSON格式，方便打印和分享给乐队成员。', 
+                icon: 'fa-file-export',
+                element: null 
+            }
         ];
 
         function startTutorial() {
@@ -1190,7 +1343,18 @@
             const step = tutorialSteps[tutorialStep];
             document.getElementById('tutorialTitle').textContent = step.title;
             document.getElementById('tutorialText').textContent = step.text;
-            document.getElementById('tutorialProgress').textContent = `${tutorialStep + 1}/${tutorialSteps.length}`;
+            document.getElementById('tutorialProgress').textContent = `${tutorialStep + 1} / ${tutorialSteps.length}`;
+            
+            // Update progress bar
+            const progressPercent = ((tutorialStep + 1) / tutorialSteps.length) * 100;
+            document.getElementById('tutorialProgressFill').style.width = `${progressPercent}%`;
+            
+            // Update icon with animation
+            const iconEl = document.getElementById('tutorialIcon');
+            iconEl.innerHTML = `<i class="fas ${step.icon}"></i>`;
+            iconEl.style.animation = 'none';
+            iconEl.offsetHeight; // Trigger reflow
+            iconEl.style.animation = 'iconBounce 0.6s ease-out 0.2s both';
             
             const highlight = document.getElementById('tutorialHighlight');
             const stepBox = document.getElementById('tutorialStep');
@@ -1208,9 +1372,9 @@
                 highlight.style.height = rect.height + 16 + 'px';
                 
                 // Position step box with boundary checks
-                const boxWidth = 280;
-                const boxHeight = 120;
-                const margin = 16;
+                const boxWidth = 380;
+                const boxHeight = 280;
+                const margin = 20;
                 
                 // Calculate available space
                 const spaceAbove = rect.top;
