@@ -239,7 +239,7 @@
             border: 1px solid rgba(139, 92, 246, 0.2);
             border-radius: 24px;
             padding: 0;
-            width: 560px;
+            width: 720px;
             max-width: 95vw;
             max-height: 90vh;
             overflow: hidden;
@@ -1014,7 +1014,7 @@
 
     <!-- Segment Modal -->
     <div id="segmentModal" class="modal-overlay" onclick="if(event.target===this)closeSegmentModal()">
-        <div class="modal-content">
+        <div class="modal-content" style="padding: 32px;">
             <div class="modal-header">
                 <h3 class="modal-title" id="segmentModalTitle">编辑段落</h3>
                 <button onclick="closeSegmentModal()" class="modal-close">×</button>
@@ -1308,31 +1308,33 @@
         
         // Comprehensive instrument list
         let instrumentList = [
-            { key: 'vocalM', name: '男主唱', short: '男', color: '#60a5fa', category: 'vocal', icon: 'fa-microphone' },
-            { key: 'vocalF', name: '女主唱', short: '女', color: '#f472b6', category: 'vocal', icon: 'fa-microphone' },
-            { key: 'vocalBG', name: '和声', short: '和', color: '#c084fc', category: 'vocal', icon: 'fa-microphone-lines' },
-            { key: 'lead', name: '主音吉他', short: '主', color: '#a78bfa', category: 'guitar', icon: 'fa-guitar' },
-            { key: 'rhythm', name: '节奏吉他', short: '节', color: '#fb923c', category: 'guitar', icon: 'fa-guitar' },
-            { key: 'acoustic', name: '木吉他', short: '木', color: '#d4a574', category: 'guitar', icon: 'fa-guitar' },
-            { key: 'bass', name: '贝斯', short: '贝', color: '#4ade80', category: 'bass', icon: 'fa-guitar' },
-            { key: 'doubleBass', name: '低音提琴', short: '低', color: '#84cc16', category: 'bass', icon: 'fa-music' },
-            { key: 'drum', name: '鼓', short: '鼓', color: '#f87171', category: 'drums', icon: 'fa-drum' },
-            { key: 'percussion', name: '打击乐', short: '击', color: '#fbbf24', category: 'drums', icon: 'fa-drum' },
-            { key: 'keyboard', name: '键盘', short: '键', color: '#22d3ee', category: 'keys', icon: 'fa-keyboard' },
-            { key: 'piano', name: '钢琴', short: '钢', color: '#38bdf8', category: 'keys', icon: 'fa-music' },
-            { key: 'synth', name: '合成器', short: '合', color: '#818cf8', category: 'keys', icon: 'fa-keyboard' },
-            { key: 'organ', name: '管风琴', short: '管', color: '#a78bfa', category: 'keys', icon: 'fa-music' },
-            { key: 'strings', name: '弦乐组', short: '弦', color: '#f0abfc', category: 'strings', icon: 'fa-music' },
-            { key: 'violin', name: '小提琴', short: '小', color: '#fda4af', category: 'strings', icon: 'fa-music' },
-            { key: 'cello', name: '大提琴', short: '大', color: '#c4b5fd', category: 'strings', icon: 'fa-music' },
-            { key: 'sax', name: '萨克斯', short: '萨', color: '#fcd34d', category: 'wind', icon: 'fa-music' },
-            { key: 'trumpet', name: '小号', short: '号', color: '#fdba74', category: 'wind', icon: 'fa-music' },
-            { key: 'trombone', name: '长号', short: '长', color: '#fca5a5', category: 'wind', icon: 'fa-music' },
-            { key: 'flute', name: '长笛', short: '笛', color: '#86efac', category: 'wind', icon: 'fa-music' },
-            { key: 'clarinet', name: '单簧管', short: '簧', color: '#93c5fd', category: 'wind', icon: 'fa-music' },
-            { key: 'harmonica', name: '口琴', short: '口', color: '#5eead4', category: 'wind', icon: 'fa-music' },
-            { key: 'dj', name: 'DJ/搓盘', short: 'DJ', color: '#a3e635', category: 'electronic', icon: 'fa-compact-disc' },
-            { key: 'sampler', name: '采样器', short: '采', color: '#bef264', category: 'electronic', icon: 'fa-compact-disc' }
+            // 常用乐器
+            { key: 'vocalM', name: '男主唱', short: '男', color: '#60a5fa', category: 'vocal', icon: 'fa-microphone', common: true },
+            { key: 'vocalF', name: '女主唱', short: '女', color: '#f472b6', category: 'vocal', icon: 'fa-microphone', common: true },
+            { key: 'vocalBG', name: '和声', short: '和', color: '#c084fc', category: 'vocal', icon: 'fa-microphone-lines', common: true },
+            { key: 'lead', name: '主音吉他', short: '主', color: '#a78bfa', category: 'guitar', icon: 'fa-guitar', common: true },
+            { key: 'rhythm', name: '节奏吉他', short: '节', color: '#fb923c', category: 'guitar', icon: 'fa-guitar', common: true },
+            { key: 'acoustic', name: '木吉他', short: '木', color: '#d4a574', category: 'guitar', icon: 'fa-guitar', common: true },
+            { key: 'bass', name: '贝斯', short: '贝', color: '#4ade80', category: 'bass', icon: 'fa-guitar', common: true },
+            { key: 'drum', name: '鼓', short: '鼓', color: '#f87171', category: 'drums', icon: 'fa-drum', common: true },
+            { key: 'keyboard', name: '键盘', short: '键', color: '#22d3ee', category: 'keys', icon: 'fa-keyboard', common: true },
+            { key: 'piano', name: '钢琴', short: '钢', color: '#38bdf8', category: 'keys', icon: 'fa-music', common: true },
+            // 其他乐器
+            { key: 'doubleBass', name: '低音提琴', short: '低', color: '#84cc16', category: 'bass', icon: 'fa-music', common: false },
+            { key: 'percussion', name: '打击乐', short: '击', color: '#fbbf24', category: 'drums', icon: 'fa-drum', common: false },
+            { key: 'synth', name: '合成器', short: '合', color: '#818cf8', category: 'keys', icon: 'fa-keyboard', common: false },
+            { key: 'organ', name: '管风琴', short: '管', color: '#a78bfa', category: 'keys', icon: 'fa-music', common: false },
+            { key: 'strings', name: '弦乐组', short: '弦', color: '#f0abfc', category: 'strings', icon: 'fa-music', common: false },
+            { key: 'violin', name: '小提琴', short: '小', color: '#fda4af', category: 'strings', icon: 'fa-music', common: false },
+            { key: 'cello', name: '大提琴', short: '大', color: '#c4b5fd', category: 'strings', icon: 'fa-music', common: false },
+            { key: 'sax', name: '萨克斯', short: '萨', color: '#fcd34d', category: 'wind', icon: 'fa-music', common: false },
+            { key: 'trumpet', name: '小号', short: '号', color: '#fdba74', category: 'wind', icon: 'fa-music', common: false },
+            { key: 'trombone', name: '长号', short: '长', color: '#fca5a5', category: 'wind', icon: 'fa-music', common: false },
+            { key: 'flute', name: '长笛', short: '笛', color: '#86efac', category: 'wind', icon: 'fa-music', common: false },
+            { key: 'clarinet', name: '单簧管', short: '簧', color: '#93c5fd', category: 'wind', icon: 'fa-music', common: false },
+            { key: 'harmonica', name: '口琴', short: '口', color: '#5eead4', category: 'wind', icon: 'fa-music', common: false },
+            { key: 'dj', name: 'DJ/搓盘', short: 'DJ', color: '#a3e635', category: 'electronic', icon: 'fa-compact-disc', common: false },
+            { key: 'sampler', name: '采样器', short: '采', color: '#bef264', category: 'electronic', icon: 'fa-compact-disc', common: false }
         ];
         
         // Custom instruments (loaded from localStorage)
@@ -1507,7 +1509,10 @@
                 inst.short.toLowerCase().includes(search)
             );
             
-            filtered.forEach(inst => {
+            const commonInstruments = filtered.filter(inst => inst.common !== false);
+            const otherInstruments = filtered.filter(inst => inst.common === false);
+            
+            commonInstruments.forEach(inst => {
                 const btn = document.createElement('button');
                 btn.onclick = () => toggleInst(inst.key);
                 btn.id = `btn-${inst.key}`;
@@ -1517,6 +1522,45 @@
                 if (tempInst[inst.key]) btn.classList.add('active');
                 container.appendChild(btn);
             });
+            
+            if (otherInstruments.length > 0) {
+                const divider = document.createElement('div');
+                divider.className = 'instrument-divider';
+                divider.innerHTML = `<span onclick="toggleOtherInstruments()">其他乐器 <i id="otherInstIcon" class="fa-solid fa-chevron-down" style="font-size: 12px; margin-left: 4px; cursor: pointer;"></i></span>`;
+                divider.style.cssText = 'width: 100%; padding: 12px 0 8px; color: #666; font-size: 13px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 8px;';
+                container.appendChild(divider);
+                
+                const otherContainer = document.createElement('div');
+                otherContainer.id = 'otherInstrumentsContainer';
+                otherContainer.style.cssText = 'display: none; width: 100%;';
+                
+                otherInstruments.forEach(inst => {
+                    const btn = document.createElement('button');
+                    btn.onclick = () => toggleInst(inst.key);
+                    btn.id = `btn-${inst.key}`;
+                    btn.className = 'toggle-btn';
+                    btn.style.color = inst.color;
+                    btn.innerHTML = `<span>${inst.short}</span> ${inst.name}`;
+                    if (tempInst[inst.key]) btn.classList.add('active');
+                    otherContainer.appendChild(btn);
+                });
+                
+                container.appendChild(otherContainer);
+            }
+        }
+        
+        function toggleOtherInstruments() {
+            const container = document.getElementById('otherInstrumentsContainer');
+            const icon = document.getElementById('otherInstIcon');
+            if (container.style.display === 'none') {
+                container.style.display = 'flex';
+                container.style.flexWrap = 'wrap';
+                container.style.gap = '8px';
+                icon.className = 'fa-solid fa-chevron-up';
+            } else {
+                container.style.display = 'none';
+                icon.className = 'fa-solid fa-chevron-down';
+            }
         }
         
         function filterInstruments() {
@@ -1864,7 +1908,7 @@
         function editLibraryItem(id) {
             editingLibraryId = id; editingTimelineIndex = null;
             const item = library.find(s => s.id === id);
-            document.getElementById('segmentModalTitle').textContent = '编辑段落库';
+            document.getElementById('segmentModalTitle').textContent = '编辑段落';
             document.getElementById('segName').value = item.name;
             document.getElementById('segBars').value = item.bars;
             document.getElementById('segType').value = item.type;
