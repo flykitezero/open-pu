@@ -242,7 +242,7 @@
             width: 720px;
             max-width: 95vw;
             max-height: 90vh;
-            overflow: hidden;
+            overflow-y: auto;
             animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             box-shadow: 0 32px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255,255,255,0.05);
         }
@@ -1038,6 +1038,8 @@
                         <option value="chorus">副歌</option>
                         <option value="interlude">间奏</option>
                         <option value="outro">尾奏</option>
+                        <option value="solo">Solo</option>
+                        <option value="other">其他</option>
                     </select>
                 </div>
             </div>
@@ -1251,8 +1253,8 @@
 
     <script>
         // Type colors & names
-        const typeColors = { intro: '#3b82f6', verse: '#22c55e', chorus: '#f97316', interlude: '#a855f7', outro: '#ec4899' };
-        const typeNames = { intro: '前奏', verse: '主歌', chorus: '副歌', interlude: '间奏', outro: '尾奏' };
+        const typeColors = { intro: '#3b82f6', verse: '#22c55e', chorus: '#f97316', interlude: '#a855f7', outro: '#ec4899', solo: '#14b8a6', other: '#64748b' };
+        const typeNames = { intro: '前奏', verse: '主歌', chorus: '副歌', interlude: '间奏', outro: '尾奏', solo: 'Solo', other: '其他' };
         
         // Scale degrees to note names mapping
         const scaleDegrees = {
@@ -1785,10 +1787,14 @@
             
             Object.entries(typeNames).forEach(([type, name]) => {
                 const items = library.filter(s => s.type === type && s.name.toLowerCase().includes(search));
-                if (items.length === 0) return;
                 
                 const group = document.createElement('div');
-                group.innerHTML = `<div class="text-xs text-zinc-500 uppercase tracking-wider mb-2">${name}</div>`;
+                group.innerHTML = `
+                    <div class="flex items-center justify-between text-xs text-zinc-500 uppercase tracking-wider mb-2">
+                        <span>${name}</span>
+                        <button onclick="addNewSegment('${type}')" class="add-segment-btn text-xs px-2 py-1 rounded bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition">+ 添加</button>
+                    </div>
+                `;
                 
                 items.forEach(item => {
                     const card = document.createElement('div');
@@ -1811,7 +1817,7 @@
                         </div>
                     `;
                     card.ondragstart = (e) => { draggedId = item.id; e.dataTransfer.effectAllowed = 'copy'; };
-                    container.appendChild(card);
+                    group.appendChild(card);
                 });
                 
                 container.appendChild(group);
@@ -1939,6 +1945,23 @@
             document.getElementById('segmentModal').classList.add('active');
         }
 
+        function addNewSegment(type) {
+            editingLibraryId = null; editingTimelineIndex = null;
+            document.getElementById('segmentModalTitle').textContent = '新建段落';
+            document.getElementById('segName').value = '';
+            document.getElementById('segBars').value = 8;
+            document.getElementById('segType').value = type;
+            document.getElementById('segChords').value = '';
+            document.getElementById('segNote').value = '';
+            // Initialize with default instruments
+            tempInst = {};
+            instrumentList.forEach(inst => { tempInst[inst.key] = 0; });
+            tempInst.vocalM = 1; tempInst.rhythm = 1; tempInst.bass = 1; tempInst.drum = 1;
+            updateInstButtons();
+            document.getElementById('deleteSegBtn').classList.add('hidden');
+            document.getElementById('segmentModal').classList.add('active');
+        }
+        
         function showAddToLibraryModal() {
             editingLibraryId = null; editingTimelineIndex = null;
             document.getElementById('segmentModalTitle').textContent = '新建段落';
