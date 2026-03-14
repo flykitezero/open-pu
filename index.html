@@ -611,7 +611,6 @@
             inset: 0;
             z-index: 200;
             display: none;
-            pointer-events: none;
         }
         .tutorial-overlay.active { display: block; }
         .tutorial-full-mask {
@@ -620,12 +619,14 @@
             background: rgba(0,0,0,0.85);
             backdrop-filter: blur(4px);
             z-index: 1;
+            pointer-events: none;
         }
         .tutorial-mask {
             position: absolute;
             background: rgba(0,0,0,0.85);
             backdrop-filter: blur(4px);
             z-index: 2;
+            pointer-events: none;
         }
         .tutorial-mask-top {
             top: 0;
@@ -1775,16 +1776,16 @@
                     const displayChords = convertToNoteNames(item.chords, songInfo);
                     card.innerHTML = `
                         <button onclick="editLibraryItem(${item.id})" class="edit-btn absolute top-2 right-2 w-6 h-6 bg-zinc-800 rounded flex items-center justify-center text-zinc-400 hover:text-white z-10">✎</button>
-                        <div class="flex items-center gap-2 mb-2 pr-8">
+                        <div class="flex items-center gap-2 mb-3 pr-4">
                             <span class="w-2 h-2 rounded-full" style="background: ${typeColors[item.type]}"></span>
                             <span class="font-medium text-sm" style="color: var(--text-primary)">${item.name}</span>
                         </div>
-                        <div class="flex items-center gap-3 mb-2">
+                        <div class="flex items-center gap-3 mb-3 pl-4">
                             <span class="text-xs px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">${item.bars}小节</span>
                             ${item.note ? `<span class="text-xs px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-400">${item.note}</span>` : ''}
                         </div>
-                        <div class="text-base chord-display text-violet-400 font-medium mb-2">${displayChords}</div>
-                        <div class="flex gap-1">
+                        <div class="text-base chord-display text-violet-400 font-medium mb-3 pl-4">${displayChords}</div>
+                        <div class="flex gap-1 pl-4">
                             ${renderInstIcons(item.inst)}
                         </div>
                     `;
