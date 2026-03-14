@@ -381,12 +381,33 @@
             pointer-events: none;
         }
         .tutorial-overlay.active { display: block; }
-        .tutorial-backdrop {
+        .tutorial-full-mask {
             position: absolute;
             inset: 0;
             background: rgba(0,0,0,0.85);
             backdrop-filter: blur(4px);
             z-index: 1;
+        }
+        .tutorial-mask {
+            position: absolute;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(4px);
+            z-index: 2;
+        }
+        .tutorial-mask-top {
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+        .tutorial-mask-right {
+            right: 0;
+        }
+        .tutorial-mask-bottom {
+            left: 0;
+            right: 0;
+        }
+        .tutorial-mask-left {
+            left: 0;
         }
         .tutorial-spotlight {
             position: absolute;
@@ -950,7 +971,11 @@
 
     <!-- Tutorial Overlay -->
     <div id="tutorialOverlay" class="tutorial-overlay">
-        <div class="tutorial-backdrop"></div>
+        <div class="tutorial-full-mask" id="fullMask" style="display: none;"></div>
+        <div class="tutorial-mask tutorial-mask-top" id="maskTop"></div>
+        <div class="tutorial-mask tutorial-mask-right" id="maskRight"></div>
+        <div class="tutorial-mask tutorial-mask-bottom" id="maskBottom"></div>
+        <div class="tutorial-mask tutorial-mask-left" id="maskLeft"></div>
         <div class="tutorial-spotlight" id="tutorialSpotlight" style="display: none;"></div>
         <div class="tutorial-step" id="tutorialStep">
             <div class="tutorial-header">
@@ -1378,6 +1403,11 @@
             
             const spotlight = document.getElementById('tutorialSpotlight');
             const stepBox = document.getElementById('tutorialStep');
+            const fullMask = document.getElementById('fullMask');
+            const maskTop = document.getElementById('maskTop');
+            const maskRight = document.getElementById('maskRight');
+            const maskBottom = document.getElementById('maskBottom');
+            const maskLeft = document.getElementById('maskLeft');
             
             // Remove highlight class from previous element
             const prevHighlighted = document.querySelector('.tutorial-highlight-element');
@@ -1392,12 +1422,31 @@
                 // Add highlight class to element
                 el.classList.add('tutorial-highlight-element');
                 
+                // Hide full mask, show individual masks
+                fullMask.style.display = 'none';
+                
                 // Position spotlight
                 spotlight.style.display = 'block';
                 spotlight.style.left = rect.left - 8 + 'px';
                 spotlight.style.top = rect.top - 8 + 'px';
                 spotlight.style.width = rect.width + 16 + 'px';
                 spotlight.style.height = rect.height + 16 + 'px';
+                
+                // Position masks to create window effect
+                const padding = 8;
+                maskTop.style.height = (rect.top - padding) + 'px';
+                
+                maskRight.style.top = Math.max(0, rect.top - padding) + 'px';
+                maskRight.style.left = (rect.right + padding) + 'px';
+                maskRight.style.width = (window.innerWidth - rect.right - padding) + 'px';
+                maskRight.style.height = (rect.height + padding * 2) + 'px';
+                
+                maskBottom.style.top = (rect.bottom + padding) + 'px';
+                maskBottom.style.height = (window.innerHeight - rect.bottom - padding) + 'px';
+                
+                maskLeft.style.top = Math.max(0, rect.top - padding) + 'px';
+                maskLeft.style.width = Math.max(0, rect.left - padding) + 'px';
+                maskLeft.style.height = (rect.height + padding * 2) + 'px';
                 
                 // Position step box with boundary checks
                 const boxWidth = 380;
@@ -1427,7 +1476,18 @@
                 stepBox.style.top = top + 'px';
                 stepBox.style.left = left + 'px';
             } else {
+                // Show full mask, hide individual masks
+                fullMask.style.display = 'block';
                 spotlight.style.display = 'none';
+                
+                // Hide individual masks
+                maskTop.style.height = '0px';
+                maskRight.style.width = '0px';
+                maskRight.style.height = '0px';
+                maskBottom.style.height = '0px';
+                maskLeft.style.width = '0px';
+                maskLeft.style.height = '0px';
+                
                 // Center in viewport
                 stepBox.style.top = '50%';
                 stepBox.style.left = '50%';
