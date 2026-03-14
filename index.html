@@ -1003,7 +1003,7 @@
                 
                 <!-- Timeline -->
                 <div id="timelineContainer" class="flex-1 overflow-y-auto p-5 scrollbar">
-                    <div id="timeline" class="space-y-3 min-h-[200px] drop-zone p-5"
+                    <div id="timeline" class="flex flex-wrap gap-4 min-h-[200px] drop-zone p-5"
                          ondragover="allowDrop(event)" ondrop="drop(event)" ondragleave="dragLeave(event)">
                         <div id="emptyTip" class="text-center py-20 text-zinc-600">
                             <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-zinc-800/50 flex items-center justify-center">
@@ -2035,7 +2035,12 @@
             container.innerHTML = '';
             timeline.forEach((item, idx) => {
                 const div = document.createElement('div');
+                // 计算基于小节数的宽度，以8小节为基准
+                const baseWidth = 100; // 8小节的基准宽度
+                const widthPercent = (item.bars / 8) * baseWidth;
                 div.className = `timeline-item p-4 type-${item.type}`;
+                div.style.width = `${widthPercent}%`;
+                div.style.minWidth = '300px'; // 设置最小宽度，确保内容能正常显示
                 const displayChords = convertToNoteNames(item.chords, songInfo);
                 div.innerHTML = `
                     <div class="flex items-center justify-between mb-2">
