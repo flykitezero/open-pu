@@ -852,13 +852,13 @@
                     ♪
                 </div>
                 <div>
-                    <input type="text" id="songTitle" value="《静止》" class="song-title-input text-xl" onchange="updateSongInfo()">
+                    <input type="text" id="songTitle" value="Demo Song" class="song-title-input text-xl" onchange="updateSongInfo()">
                     <div class="flex items-center gap-3 mt-1.5">
-                        <input type="text" id="songArtist" value="花儿乐队" class="text-sm bg-transparent border-none text-zinc-400 focus:text-zinc-200 focus:outline-none" placeholder="艺人" onchange="updateSongInfo()">
+                        <input type="text" id="songArtist" value="" class="text-sm bg-transparent border-none text-zinc-400 focus:text-zinc-200 focus:outline-none" placeholder="艺人" onchange="updateSongInfo()">
                         <span class="text-zinc-700">·</span>
                         <div class="relative" id="keySelectorContainer">
                             <button onclick="toggleKeySelector()" class="flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-200 transition" id="keyDisplay">
-                                <span>G</span>
+                                <span>C</span>
                                 <span class="text-xs">大调</span>
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                             </button>
@@ -929,12 +929,6 @@
                 </button>
                 
                 <div class="w-px h-8 bg-zinc-800 mx-1"></div>
-                
-                <!-- 主题切换 -->
-                <button onclick="toggleTheme()" class="btn-icon" id="themeToggle" title="切换主题">
-                    <svg id="themeIconDark" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                    <svg id="themeIconLight" class="hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                </button>
                 
                 <div class="relative">
                     <button onclick="toggleExportImportMenu()" class="btn-accent px-4 py-2.5 text-sm font-medium flex items-center gap-2 rounded-xl">
@@ -1473,15 +1467,6 @@
             document.getElementById('noteToggle').classList.toggle('active', showNoteNames);
             renderLibrary();
             updateTimeline();
-        }
-        
-        // Theme toggle
-        function toggleTheme() {
-            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.body.classList.toggle('light-theme', currentTheme === 'light');
-            document.getElementById('themeIconDark').classList.toggle('hidden', currentTheme === 'light');
-            document.getElementById('themeIconLight').classList.toggle('hidden', currentTheme === 'dark');
-            localStorage.setItem('theme', currentTheme);
         }
         
         // Key selector functions
